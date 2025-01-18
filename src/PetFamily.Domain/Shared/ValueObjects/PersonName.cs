@@ -1,10 +1,11 @@
-using CSharpFunctionalExtensions;
+using PetFamily.Domain.Utils;
+using PetFamily.Domain.Utils.ResultPattern;
 
-namespace PetFamily.Domain.Species.ValueObjects;
+namespace PetFamily.Domain.Shared.ValueObjects;
 
 public record PersonName
 {
-    private const int MaxNamePartsLength = 50;
+    public const int MaxNamePartsLength = 50;
 
     public string Name { get; }
 
@@ -14,29 +15,23 @@ public record PersonName
 
     private PersonName(string name, string surname, string patronymic = "")
     {
-        Name = name;
-        Surname = surname;
-        Patronymic = patronymic;
+        Name = name.CapitalizeFirstLetter();
+        Surname = surname.CapitalizeFirstLetter();
+        Patronymic = patronymic.CapitalizeFirstLetter();
     }
 
     public static Result<PersonName> Create(string? name, string? surname, string? patronymic)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return Result.Failure<PersonName>(PersonNameErrors.NameWasEmpty());
+            return new Error(PersonNameErrors.NameWasEmpty());
         if (name.Length > MaxNamePartsLength)
-            return Result.Failure<PersonName>(
-                PersonNameErrors.NameExceedsLength(MaxNamePartsLength)
-            );
+            return new Error(PersonNameErrors.NameExceedsLength(MaxNamePartsLength));
         if (string.IsNullOrWhiteSpace(surname))
-            return Result.Failure<PersonName>(PersonNameErrors.SurnameWasEmpty());
+            return new Error(PersonNameErrors.SurnameWasEmpty());
         if (surname.Length > MaxNamePartsLength)
-            return Result.Failure<PersonName>(
-                PersonNameErrors.SurnameExceedsLength(MaxNamePartsLength)
-            );
+            return new Error(PersonNameErrors.SurnameExceedsLength(MaxNamePartsLength));
         if (!string.IsNullOrWhiteSpace(patronymic) && patronymic.Length > MaxNamePartsLength)
-            return Result.Failure<PersonName>(
-                PersonNameErrors.PatronymicExceedsLength(MaxNamePartsLength)
-            );
+            return new Error(PersonNameErrors.PatronymicExceedsLength(MaxNamePartsLength));
         return string.IsNullOrWhiteSpace(patronymic)
             ? new PersonName(name, surname)
             : new PersonName(name, surname, patronymic);

@@ -1,11 +1,12 @@
-using CSharpFunctionalExtensions;
+using PetFamily.Domain.Utils;
+using PetFamily.Domain.Utils.ResultPattern;
 
 namespace PetFamily.Domain.Shared.ValueObjects;
 
 public record AccountDetails
 {
-    private const int MaxAccountDetailsDescriptionLength = 500;
-    private const int MaxAccountDetailsNameLength = 100;
+    public const int MaxAccountDetailsDescriptionLength = 500;
+    public const int MaxAccountDetailsNameLength = 100;
 
     public static AccountDetails Unknown => new AccountDetails("", "");
 
@@ -14,24 +15,22 @@ public record AccountDetails
 
     private AccountDetails(string description, string name)
     {
-        Description = description;
-        Name = name;
+        Description = description.CapitalizeFirstLetter();
+        Name = name.CapitalizeFirstLetter();
     }
 
     public static Result<AccountDetails> Create(string? description, string? name)
     {
         if (string.IsNullOrWhiteSpace(description))
-            return Result.Failure<AccountDetails>(AccountDetailsErrors.DescriptionIsEmpty());
+            return new Error(AccountDetailsErrors.DescriptionIsEmpty());
         if (description.Length > MaxAccountDetailsDescriptionLength)
-            return Result.Failure<AccountDetails>(
+            return new Error(
                 AccountDetailsErrors.DescriptionExceedsMaxLength(MaxAccountDetailsDescriptionLength)
             );
         if (string.IsNullOrWhiteSpace(name))
-            return Result.Failure<AccountDetails>(AccountDetailsErrors.NameIsEmpty());
+            return new Error(AccountDetailsErrors.NameIsEmpty());
         if (name.Length > MaxAccountDetailsNameLength)
-            return Result.Failure<AccountDetails>(
-                AccountDetailsErrors.NameExceedsLength(MaxAccountDetailsNameLength)
-            );
+            return new Error(AccountDetailsErrors.NameExceedsLength(MaxAccountDetailsNameLength));
         return new AccountDetails(description, name);
     }
 }

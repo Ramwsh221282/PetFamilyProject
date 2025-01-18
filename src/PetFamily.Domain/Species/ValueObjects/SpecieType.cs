@@ -1,23 +1,24 @@
-using CSharpFunctionalExtensions;
+using PetFamily.Domain.Utils;
+using PetFamily.Domain.Utils.ResultPattern;
 
 namespace PetFamily.Domain.Species.ValueObjects;
 
 public record SpecieType
 {
-    private const int MaxSpecieTypeLength = 80;
+    public const int MaxSpecieTypeLength = 80;
 
     public string Type { get; }
 
-    private SpecieType(string type) => Type = type;
+    private SpecieType(string type) => Type = type.CapitalizeFirstLetter();
 
     public static Result<SpecieType> Create(string? type) =>
         type switch
         {
-            null => Result.Failure<SpecieType>(SpecieTypeErrors.SpecieTypeNullError()),
-            not null when string.IsNullOrWhiteSpace(type) => Result.Failure<SpecieType>(
+            null => new Error(SpecieTypeErrors.SpecieTypeNullError()),
+            not null when string.IsNullOrWhiteSpace(type) => new Error(
                 SpecieTypeErrors.SpecieTypeEmptyError()
             ),
-            not null when type.Length > MaxSpecieTypeLength => Result.Failure<SpecieType>(
+            not null when type.Length > MaxSpecieTypeLength => new Error(
                 SpecieTypeErrors.SpecieTypeExceedsLength(MaxSpecieTypeLength)
             ),
             _ => new SpecieType(type),

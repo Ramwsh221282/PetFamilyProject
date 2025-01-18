@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+using PetFamily.Domain.Utils.ResultPattern;
 
 namespace PetFamily.Domain.Volunteer.ValueObjects;
 
@@ -8,19 +8,15 @@ public record ExperienceInYears
 
     private ExperienceInYears(int years) => Years = years;
 
-    public static ExperienceInYears NoExperience = new ExperienceInYears(0);
+    public static ExperienceInYears NoExperience = new(0);
 
     public static Result<ExperienceInYears> Create(int years)
     {
         if (years < 0)
-            return Result.Failure<ExperienceInYears>(
-                ExperienceInYearsErrors.ExperienceCannotBeNegative()
-            );
+            return new Error(ExperienceInYearsErrors.ExperienceCannotBeNegative());
         if (years >= 100)
-            return Result.Failure<ExperienceInYears>(
-                ExperienceInYearsErrors.ExperienceCannotBeMoreThanHundred()
-            );
-        return new ExperienceInYears(100);
+            return new Error(ExperienceInYearsErrors.ExperienceCannotBeMoreThanHundred());
+        return new ExperienceInYears(years);
     }
 }
 

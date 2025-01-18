@@ -1,13 +1,15 @@
-using CSharpFunctionalExtensions;
 using PetFamily.Domain.Pet.ValueObjects;
 using PetFamily.Domain.Shared.ValueObjects;
 using PetFamily.Domain.Species.ValueObjects;
+using PetFamily.Domain.Utils.IdUtils.Implementations;
 
 namespace PetFamily.Domain.Pet;
 
-public class Pet : Entity
+public class Pet
 {
-    public new PetId Id { get; init; }
+    #region Attributes
+
+    public PetId Id { get; init; }
     public SpecieId SpecieId { get; init; }
     public BreedId BreedId { get; init; }
     public PetCreationDate CreationDate { get; init; }
@@ -20,6 +22,11 @@ public class Pet : Entity
     public PetAddress Address { get; private set; }
     public Contacts OwnerContacts { get; private set; }
     public PetColor Color { get; private set; }
+    public PetAttachments Attachments { get; private set; } = new();
+
+    #endregion
+
+    private Pet() { } // ef core
 
     public Pet(
         PetName name,
@@ -36,7 +43,7 @@ public class Pet : Entity
     )
     {
         Name = name;
-        Id = new PetId();
+        Id = new PetId(new RandomGuidGenerationStrategy());
         SpecieId = specieId;
         BreedId = breedId;
         BodyMetrics = bodyMetrics;
@@ -45,12 +52,14 @@ public class Pet : Entity
         OwnerContacts = ownerContacts;
         HelpStatus = helpStatus;
         Color = color;
-        CreationDate = new PetCreationDate();
+        CreationDate = PetCreationDate.FromDateOnly(DateOnly.FromDateTime(DateTime.Now));
         if (healthStatus != null)
             PetHealth = healthStatus;
         if (description != null)
             Description = description;
     }
+
+    #region Behavior
 
     public void UpdatePetName(PetName newName) => Name = newName;
 
@@ -67,4 +76,6 @@ public class Pet : Entity
     public void UpdatePetOwnerContacts(Contacts newContacts) => OwnerContacts = newContacts;
 
     public void UpdatePetColor(PetColor newColor) => Color = newColor;
+
+    #endregion
 }
