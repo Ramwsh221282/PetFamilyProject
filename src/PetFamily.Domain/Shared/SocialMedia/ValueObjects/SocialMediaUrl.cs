@@ -1,7 +1,7 @@
-using CSharpFunctionalExtensions;
 using PetFamily.Domain.Utils;
+using PetFamily.Domain.Utils.ResultPattern;
 
-namespace PetFamily.Domain.SocialMedia.ValueObjects;
+namespace PetFamily.Domain.Shared.SocialMedia.ValueObjects;
 
 public record SocialMediaUrl
 {
@@ -12,9 +12,9 @@ public record SocialMediaUrl
     public static Result<SocialMediaUrl> Create(string? url)
     {
         if (string.IsNullOrWhiteSpace(url))
-            return Result.Failure<SocialMediaUrl>(SocialMediaUrlErrors.UrlEmpty());
+            return new Error(SocialMediaUrlErrors.UrlEmpty());
         if (!UrlValidationHelper.IsUrlValid(url))
-            return Result.Failure<SocialMediaUrl>(SocialMediaUrlErrors.UrlIsInvalid());
+            return new Error(SocialMediaUrlErrors.UrlIsInvalid());
         return new SocialMediaUrl(url);
     }
 }

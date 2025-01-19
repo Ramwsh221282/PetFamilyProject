@@ -1,22 +1,23 @@
-using CSharpFunctionalExtensions;
+using PetFamily.Domain.Utils;
+using PetFamily.Domain.Utils.ResultPattern;
 
 namespace PetFamily.Domain.Species.ValueObjects;
 
 public record BreedName
 {
-    private const int MaxBreedValueLength = 100;
+    public const int MaxBreedValueLength = 100;
     public string BreedValue { get; }
 
-    private BreedName(string breed) => BreedValue = breed;
+    private BreedName(string breed) => BreedValue = breed.CapitalizeFirstLetter();
 
     public static Result<BreedName> Create(string? breed) =>
         breed switch
         {
-            null => Result.Failure<BreedName>(BreedNameErrors.BreedNameWasNull()),
-            not null when string.IsNullOrWhiteSpace(breed) => Result.Failure<BreedName>(
+            null => new Error(BreedNameErrors.BreedNameWasNull()),
+            not null when string.IsNullOrWhiteSpace(breed) => new Error(
                 BreedNameErrors.BreedNameWasEmpty()
             ),
-            not null when breed.Length > MaxBreedValueLength => Result.Failure<BreedName>(
+            not null when breed.Length > MaxBreedValueLength => new Error(
                 BreedNameErrors.BreedNameValueExceedsMaxLength(MaxBreedValueLength)
             ),
             _ => new BreedName(breed),

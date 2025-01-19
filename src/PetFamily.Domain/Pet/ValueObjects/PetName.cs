@@ -1,30 +1,24 @@
-using System.Text;
-using CSharpFunctionalExtensions;
+using PetFamily.Domain.Utils;
+using PetFamily.Domain.Utils.ResultPattern;
 
 namespace PetFamily.Domain.Pet.ValueObjects;
 
 public record PetName
 {
-    private const int MaxNameLength = 50;
+    public const int MaxNameLength = 50;
 
     public string Value { get; }
 
-    private PetName(string value)
-    {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.Append(char.ToUpper(value[0]));
-        stringBuilder.Append(value.Substring(1));
-        Value = stringBuilder.ToString().Trim();
-    }
+    private PetName(string value) => Value = value.CapitalizeFirstLetter();
 
     public static Result<PetName> Create(string? name) =>
         name switch
         {
-            null => Result.Failure<PetName>(PetNameErrors.NameNullError()),
-            not null when string.IsNullOrWhiteSpace(name) => Result.Failure<PetName>(
+            null => new Error(PetNameErrors.NameNullError()),
+            not null when string.IsNullOrWhiteSpace(name) => new Error(
                 PetNameErrors.NameEmptyError()
             ),
-            not null when name.Length > MaxNameLength => Result.Failure<PetName>(
+            not null when name.Length > MaxNameLength => new Error(
                 PetNameErrors.PetNameExceedsMaximumLengthError(MaxNameLength)
             ),
             _ => new PetName(name),

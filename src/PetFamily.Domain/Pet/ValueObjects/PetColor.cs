@@ -1,24 +1,25 @@
-using CSharpFunctionalExtensions;
 using PetFamily.Domain.Species.ValueObjects;
+using PetFamily.Domain.Utils;
+using PetFamily.Domain.Utils.ResultPattern;
 
 namespace PetFamily.Domain.Pet.ValueObjects;
 
 public record PetColor
 {
-    private const int MaxColorValueLength = 20;
+    public const int MaxColorValueLength = 20;
 
     public string ColorValue { get; }
 
-    private PetColor(string colorValue) => ColorValue = colorValue;
+    private PetColor(string colorValue) => ColorValue = colorValue.CapitalizeFirstLetter();
 
     public static Result<PetColor> Create(string? colorValue) =>
         colorValue switch
         {
-            null => Result.Failure<PetColor>(PetColorErrors.PetColorWasNull()),
-            not null when string.IsNullOrWhiteSpace(colorValue) => Result.Failure<PetColor>(
+            null => new Error(PetColorErrors.PetColorWasNull()),
+            not null when string.IsNullOrWhiteSpace(colorValue) => new Error(
                 SpecieTypeErrors.SpecieTypeEmptyError()
             ),
-            not null when colorValue.Length > MaxColorValueLength => Result.Failure<PetColor>(
+            not null when colorValue.Length > MaxColorValueLength => new Error(
                 SpecieTypeErrors.SpecieTypeExceedsLength(MaxColorValueLength)
             ),
             _ => new PetColor(colorValue),

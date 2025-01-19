@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+using PetFamily.Domain.Utils.ResultPattern;
 
 namespace PetFamily.Domain.Pet.ValueObjects;
 
@@ -12,7 +12,7 @@ public record PetBirthday
     {
         DateOnly today = DateOnly.FromDateTime(DateTime.Today);
         if (birthDay > today)
-            return Result.Failure<PetBirthday>(PetBirthdayErrors.DateIsMoreThanCurrentDate());
+            return new Error(PetBirthdayErrors.DateIsMoreThanCurrentDate());
         return new PetBirthday(birthDay);
     }
 }

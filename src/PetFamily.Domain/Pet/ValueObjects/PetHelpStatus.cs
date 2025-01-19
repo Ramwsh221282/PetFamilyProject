@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+using PetFamily.Domain.Utils.ResultPattern;
 
 namespace PetFamily.Domain.Pet.ValueObjects;
 
@@ -28,7 +28,7 @@ public abstract record PetHelpStatus
             (int)PetHelpStatuses.LookingForHouse => new LookingForHouse(
                 PetHelpStatuses.LookingForHouse
             ),
-            _ => Result.Failure<PetHelpStatus>(PetHelpStatusErrors.UnknownPetHelpStatus()),
+            _ => new Error(PetHelpStatusErrors.UnknownPetHelpStatus()),
         };
 }
 

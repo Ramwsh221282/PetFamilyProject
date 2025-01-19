@@ -1,4 +1,5 @@
-using CSharpFunctionalExtensions;
+using PetFamily.Domain.Utils;
+using PetFamily.Domain.Utils.ResultPattern;
 
 namespace PetFamily.Domain.Pet.ValueObjects;
 
@@ -6,13 +7,13 @@ public record PetAddress
 {
     public string Address { get; }
 
-    private PetAddress(string address) => Address = address;
+    private PetAddress(string address) => Address = address.CapitalizeFirstLetter();
 
     public static Result<PetAddress> Create(string? address) =>
         address switch
         {
-            null => Result.Failure<PetAddress>(PetAddressErrors.AddressIsNull()),
-            not null when string.IsNullOrWhiteSpace(address) => Result.Failure<PetAddress>(
+            null => new Error(PetAddressErrors.AddressIsNull()),
+            not null when string.IsNullOrWhiteSpace(address) => new Error(
                 PetAddressErrors.AddressWasEmpty()
             ),
             _ => new PetAddress(address),
