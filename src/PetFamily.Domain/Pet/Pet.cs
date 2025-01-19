@@ -10,10 +10,10 @@ public class Pet
     #region Attributes
 
     public PetId Id { get; init; }
-    public SpecieId SpecieId { get; init; }
-    public BreedId BreedId { get; init; }
-    public PetCreationDate CreationDate { get; init; }
-    public PetBirthday Birthday { get; init; }
+    public SpecieId SpecieId { get; }
+    public BreedId BreedId { get; }
+    public PetCreationDate CreationDate { get; }
+    public PetBirthday Birthday { get; }
     public PetName Name { get; private set; }
     public PetBodyMetrics BodyMetrics { get; private set; }
     public PetHealthStatus PetHealth { get; private set; } = new NeitherVaccinatedNorCastrated();

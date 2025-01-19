@@ -1,6 +1,6 @@
 using PetFamily.Domain.Utils.IdUtils;
 
-namespace PetFamily.Domain.SocialMedia.ValueObjects;
+namespace PetFamily.Domain.Shared.SocialMedia.ValueObjects;
 
 public record SocialMediaId
 {

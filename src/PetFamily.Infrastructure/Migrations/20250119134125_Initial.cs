@@ -36,7 +36,8 @@ namespace PetFamily.Infrastructure.Migrations
                     volunteer_phone = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     volunteer_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     volunteer_patronymic = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    volunteer_surname = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
+                    volunteer_surname = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    SocialMedia = table.Column<string>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -97,26 +98,6 @@ namespace PetFamily.Infrastructure.Migrations
                         onDelete: ReferentialAction.SetNull);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "social_medias",
-                columns: table => new
-                {
-                    social_media_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    social_media_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    social_media_url = table.Column<string>(type: "text", nullable: false),
-                    volunteer_social_media_id = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_social_medias", x => x.social_media_id);
-                    table.ForeignKey(
-                        name: "fk_social_medias_volunteers_volunteer_social_media_id",
-                        column: x => x.volunteer_social_media_id,
-                        principalTable: "volunteers",
-                        principalColumn: "volunteer_id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "ix_breeds_specie_id",
                 table: "breeds",
@@ -126,11 +107,6 @@ namespace PetFamily.Infrastructure.Migrations
                 name: "ix_pets_volunteer_id",
                 table: "pets",
                 column: "volunteer_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_social_medias_volunteer_social_media_id",
-                table: "social_medias",
-                column: "volunteer_social_media_id");
         }
 
         /// <inheritdoc />
@@ -141,9 +117,6 @@ namespace PetFamily.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "pets");
-
-            migrationBuilder.DropTable(
-                name: "social_medias");
 
             migrationBuilder.DropTable(
                 name: "species");

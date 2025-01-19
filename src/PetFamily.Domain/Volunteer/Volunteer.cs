@@ -1,4 +1,5 @@
 using PetFamily.Domain.Pet.ValueObjects;
+using PetFamily.Domain.Shared.SocialMedia;
 using PetFamily.Domain.Shared.ValueObjects;
 using PetFamily.Domain.Utils.IdUtils.Implementations;
 using PetFamily.Domain.Utils.OptionalPattern;
@@ -12,9 +13,8 @@ public class Volunteer
     #region Attributes
 
     private readonly List<Pet.Pet> _pets = [];
-    private readonly List<SocialMedia.SocialMedia> _socialMedia = [];
-    public VolunteerId Id { get; init; }
-    public IReadOnlyCollection<SocialMedia.SocialMedia> SocialMedia = [];
+    public readonly SocialMediaCollection SocialMedia = new();
+    public VolunteerId Id { get; }
     public IReadOnlyCollection<Pet.Pet> Pets => _pets;
     public Contacts Contacts { get; private set; }
     public PersonName Name { get; private set; }
@@ -83,34 +83,9 @@ public class Volunteer
 
     public void SetNewAccountDetails(AccountDetails details) => AccountDetails = details;
 
-    public Result AttachSocialMedia(SocialMedia.SocialMedia socialMedia)
-    {
-        if (HasSocialMedia(socialMedia))
-            return new Error("Volunteer already has this social media attached");
-        _socialMedia.Add(socialMedia);
-        return Result.Success();
-    }
-
-    public Optional<SocialMedia.SocialMedia> GetSocialMedia(
-        Func<SocialMedia.SocialMedia, bool> predicate
-    ) => Optional<SocialMedia.SocialMedia>.Some(_socialMedia.FirstOrDefault(predicate));
-
-    public Result DetachSocialMedia(SocialMedia.SocialMedia socialMedia)
-    {
-        if (!HasSocialMedia(socialMedia))
-            return new Error("Volunteer doesn't own this social media");
-        _socialMedia.Remove(socialMedia);
-        return Result.Success();
-    }
-
     #endregion
 
     #region Helper Utilities
-
-    private bool HasSocialMedia(SocialMedia.SocialMedia socialMedia) =>
-        _socialMedia.Any(m =>
-            m.Id == socialMedia.Id || (m.Name == socialMedia.Name && m.Url == socialMedia.Url)
-        );
 
     private bool OwnsPet(Pet.Pet pet) => _pets.Any(p => p.Id == pet.Id);
 

@@ -9,7 +9,7 @@ public class Specie
     #region Attributes
 
     private readonly List<Breed> _breeds = [];
-    public SpecieId Id { get; init; }
+    public SpecieId Id { get; }
     public SpecieType Type { get; private set; }
     public IReadOnlyCollection<Breed> Breeds => _breeds;
 

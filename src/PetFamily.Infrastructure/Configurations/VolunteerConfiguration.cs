@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PetFamily.Domain.Shared.SocialMedia.ValueObjects;
 using PetFamily.Domain.Shared.ValueObjects;
 using PetFamily.Domain.Utils.IdUtils.Implementations;
 using PetFamily.Domain.Volunteer;
@@ -32,12 +33,6 @@ internal sealed class VolunteerConfiguration : IEntityTypeConfiguration<Voluntee
             .WithOne()
             .HasForeignKey("volunteer_id")
             .OnDelete(DeleteBehavior.SetNull);
-
-        builder
-            .HasMany(v => v.SocialMedia)
-            .WithOne()
-            .HasForeignKey("volunteer_social_media_id")
-            .OnDelete(DeleteBehavior.Cascade);
 
         #endregion
 
@@ -108,6 +103,36 @@ internal sealed class VolunteerConfiguration : IEntityTypeConfiguration<Voluntee
             .IsRequired()
             .HasColumnName("volunteer_experience")
             .HasConversion(toDb => toDb.Years, fromDb => ExperienceInYears.Create(fromDb).Value);
+
+        #endregion
+
+        #region JSON
+
+        builder.OwnsOne(
+            v => v.SocialMedia,
+            onb =>
+            {
+                onb.ToJson();
+                onb.OwnsMany(
+                    col => col.SocialMedias,
+                    med =>
+                    {
+                        med.Property(media => media.Name)
+                            .HasConversion(
+                                toDb => toDb.Name,
+                                fromDb => SocialMediaName.Create(fromDb).Value
+                            )
+                            .IsRequired();
+                        med.Property(media => media.Url)
+                            .HasConversion(
+                                toDb => toDb.Url,
+                                fromDb => SocialMediaUrl.Create(fromDb).Value
+                            )
+                            .IsRequired();
+                    }
+                );
+            }
+        );
 
         #endregion
     }

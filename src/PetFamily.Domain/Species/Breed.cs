@@ -7,8 +7,8 @@ public class Breed
 {
     #region Attributes
 
-    public BreedId Id { get; init; }
-    public SpecieId SpecieId { get; init; }
+    public BreedId Id { get; }
+    public SpecieId SpecieId { get; }
     public BreedName Name { get; private set; }
 
     #endregion

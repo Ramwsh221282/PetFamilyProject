@@ -1,7 +1,7 @@
 using PetFamily.Domain.Utils;
 using PetFamily.Domain.Utils.ResultPattern;
 
-namespace PetFamily.Domain.SocialMedia.ValueObjects;
+namespace PetFamily.Domain.Shared.SocialMedia.ValueObjects;
 
 public record SocialMediaUrl
 {

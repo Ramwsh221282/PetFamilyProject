@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using PetFamily.Domain.SocialMedia;
 using PetFamily.Domain.Species;
 using PetFamily.Domain.Volunteer;
 using PetFamily.Infrastructure.Configurations;
@@ -13,7 +12,6 @@ public sealed class ApplicationDbContext(IConfiguration configuration) : DbConte
     private const string PostgresDb = nameof(PostgresDb);
 
     public DbSet<Volunteer> Volunteers { get; set; } = null!;
-    public DbSet<SocialMedia> SocialMedias { get; set; } = null!;
     public DbSet<Specie> Species { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -27,7 +25,6 @@ public sealed class ApplicationDbContext(IConfiguration configuration) : DbConte
         modelBuilder
             .ApplyConfiguration(new VolunteerConfiguration())
             .ApplyConfiguration(new SpecieConfiguration())
-            .ApplyConfiguration(new SocialMediaConfiguration())
             .ApplyConfiguration(new PetConfiguration())
             .ApplyConfiguration(new BreedConfiguration());
 
