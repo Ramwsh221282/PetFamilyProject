@@ -12,9 +12,10 @@ public record PetAddress
     public static Result<PetAddress> Create(string? address) =>
         address switch
         {
-            null => new Error(PetAddressErrors.AddressIsNull()),
+            null => new Error(PetAddressErrors.AddressIsNull(), ErrorStatusCode.BadRequest),
             not null when string.IsNullOrWhiteSpace(address) => new Error(
-                PetAddressErrors.AddressWasEmpty()
+                PetAddressErrors.AddressWasEmpty(),
+                ErrorStatusCode.BadRequest
             ),
             _ => new PetAddress(address),
         };

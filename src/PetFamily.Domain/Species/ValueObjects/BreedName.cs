@@ -13,12 +13,14 @@ public record BreedName
     public static Result<BreedName> Create(string? breed) =>
         breed switch
         {
-            null => new Error(BreedNameErrors.BreedNameWasNull()),
+            null => new Error(BreedNameErrors.BreedNameWasNull(), ErrorStatusCode.BadRequest),
             not null when string.IsNullOrWhiteSpace(breed) => new Error(
-                BreedNameErrors.BreedNameWasEmpty()
+                BreedNameErrors.BreedNameWasEmpty(),
+                ErrorStatusCode.BadRequest
             ),
             not null when breed.Length > MaxBreedValueLength => new Error(
-                BreedNameErrors.BreedNameValueExceedsMaxLength(MaxBreedValueLength)
+                BreedNameErrors.BreedNameValueExceedsMaxLength(MaxBreedValueLength),
+                ErrorStatusCode.BadRequest
             ),
             _ => new BreedName(breed),
         };

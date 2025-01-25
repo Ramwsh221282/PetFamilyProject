@@ -14,9 +14,12 @@ public record SocialMediaName
     public static Result<SocialMediaName> Create(string? name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return new Error(SocialMediaNameErrors.NameIsEmpty());
+            return new Error(SocialMediaNameErrors.NameIsEmpty(), ErrorStatusCode.BadRequest);
         if (name.Length > SocialMediaNameMaxLength)
-            return new Error(SocialMediaNameErrors.NameExceedsLength(SocialMediaNameMaxLength));
+            return new Error(
+                SocialMediaNameErrors.NameExceedsLength(SocialMediaNameMaxLength),
+                ErrorStatusCode.BadRequest
+            );
         return new SocialMediaName(name);
     }
 }

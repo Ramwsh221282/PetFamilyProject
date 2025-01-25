@@ -13,9 +13,15 @@ public record ExperienceInYears
     public static Result<ExperienceInYears> Create(int years)
     {
         if (years < 0)
-            return new Error(ExperienceInYearsErrors.ExperienceCannotBeNegative());
+            return new Error(
+                ExperienceInYearsErrors.ExperienceCannotBeNegative(),
+                ErrorStatusCode.BadRequest
+            );
         if (years >= 100)
-            return new Error(ExperienceInYearsErrors.ExperienceCannotBeMoreThanHundred());
+            return new Error(
+                ExperienceInYearsErrors.ExperienceCannotBeMoreThanHundred(),
+                ErrorStatusCode.BadRequest
+            );
         return new ExperienceInYears(years);
     }
 }

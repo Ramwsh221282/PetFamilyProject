@@ -18,7 +18,8 @@ public record Description
         {
             null => Empty,
             not null when description.Length > MaxDescriptionLength => new Error(
-                DescriptionErrors.DescriptionExceedsMaxLength(MaxDescriptionLength)
+                DescriptionErrors.DescriptionExceedsMaxLength(MaxDescriptionLength),
+                ErrorStatusCode.BadRequest
             ),
             _ => new Description(description),
         };

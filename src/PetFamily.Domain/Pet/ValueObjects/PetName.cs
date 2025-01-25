@@ -14,12 +14,14 @@ public record PetName
     public static Result<PetName> Create(string? name) =>
         name switch
         {
-            null => new Error(PetNameErrors.NameNullError()),
+            null => new Error(PetNameErrors.NameNullError(), ErrorStatusCode.BadRequest),
             not null when string.IsNullOrWhiteSpace(name) => new Error(
-                PetNameErrors.NameEmptyError()
+                PetNameErrors.NameEmptyError(),
+                ErrorStatusCode.BadRequest
             ),
             not null when name.Length > MaxNameLength => new Error(
-                PetNameErrors.PetNameExceedsMaximumLengthError(MaxNameLength)
+                PetNameErrors.PetNameExceedsMaximumLengthError(MaxNameLength),
+                ErrorStatusCode.BadRequest
             ),
             _ => new PetName(name),
         };

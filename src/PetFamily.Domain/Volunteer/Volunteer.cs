@@ -13,7 +13,7 @@ public class Volunteer
     #region Attributes
 
     private readonly List<Pet.Pet> _pets = [];
-    public readonly SocialMediaCollection SocialMedia = new();
+    public SocialMediaCollection SocialMedia { get; private set; }
     public VolunteerId Id { get; }
     public IReadOnlyCollection<Pet.Pet> Pets => _pets;
     public Contacts Contacts { get; private set; }
@@ -30,16 +30,22 @@ public class Volunteer
         Contacts contacts,
         PersonName name,
         Description? description = null,
-        ExperienceInYears? experience = null
+        ExperienceInYears? experience = null,
+        AccountDetails? details = null,
+        params SocialMedia[] media
     )
     {
         Id = new VolunteerId(new RandomGuidGenerationStrategy());
         Contacts = contacts;
         Name = name;
+        SocialMedia = new SocialMediaCollection();
         if (description != null)
             Description = description;
         if (experience != null)
             Experience = experience;
+        if (details != null)
+            AccountDetails = details;
+        SocialMedia = new SocialMediaCollection(media);
     }
 
     #region Behavior
@@ -55,7 +61,7 @@ public class Volunteer
     public Result CarryPet(Pet.Pet pet)
     {
         if (OwnsPet(pet))
-            return new Error("Volunteer charges such pet already");
+            return new Error("Volunteer charges such pet already", ErrorStatusCode.BadRequest);
         _pets.Add(pet);
         return Result.Success();
     }
@@ -63,7 +69,7 @@ public class Volunteer
     public Result DropPet(PetId id)
     {
         if (!OwnsPet(id))
-            return new Error("Volunteer doesn't charge this pet");
+            return new Error("Volunteer doesn't charge this pet", ErrorStatusCode.BadRequest);
         _pets.RemoveAll(p => p.Id == id);
         return Result.Success();
     }
