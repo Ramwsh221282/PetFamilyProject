@@ -19,15 +19,21 @@ public abstract record Contacts
     public static Result<Contacts> Create(string? phone, string? email)
     {
         if (string.IsNullOrWhiteSpace(phone))
-            return new Error(ContactsErrors.PhoneWasNull());
+            return new Error(ContactsErrors.PhoneWasNull(), ErrorStatusCode.BadRequest);
         if (!PhoneValidationHelper.IsPhoneValid(phone))
-            return new Error(ContactsErrors.PhoneWasIncorrect());
+            return new Error(ContactsErrors.PhoneWasIncorrect(), ErrorStatusCode.BadRequest);
         if (phone.Length > MaxPhoneLength)
-            return new Error(ContactsErrors.PhoneExceedsMaxLength(MaxPhoneLength));
+            return new Error(
+                ContactsErrors.PhoneExceedsMaxLength(MaxPhoneLength),
+                ErrorStatusCode.BadRequest
+            );
         if (!string.IsNullOrWhiteSpace(email) && !EmailValidationHelper.IsEmailValid(email))
-            return new Error(ContactsErrors.EmailWasIncorrect());
+            return new Error(ContactsErrors.EmailWasIncorrect(), ErrorStatusCode.BadRequest);
         if (!string.IsNullOrWhiteSpace(email) && email.Length > MaxEmailLength)
-            return new Error(ContactsErrors.EmailExceedsMaxLength(MaxEmailLength));
+            return new Error(
+                ContactsErrors.EmailExceedsMaxLength(MaxEmailLength),
+                ErrorStatusCode.BadRequest
+            );
         return string.IsNullOrWhiteSpace(email)
             ? new PhoneOnlyContacts(phone)
             : new FullContacts(phone, email);

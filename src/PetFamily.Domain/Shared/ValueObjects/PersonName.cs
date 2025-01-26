@@ -23,15 +23,24 @@ public record PersonName
     public static Result<PersonName> Create(string? name, string? surname, string? patronymic)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return new Error(PersonNameErrors.NameWasEmpty());
+            return new Error(PersonNameErrors.NameWasEmpty(), ErrorStatusCode.BadRequest);
         if (name.Length > MaxNamePartsLength)
-            return new Error(PersonNameErrors.NameExceedsLength(MaxNamePartsLength));
+            return new Error(
+                PersonNameErrors.NameExceedsLength(MaxNamePartsLength),
+                ErrorStatusCode.BadRequest
+            );
         if (string.IsNullOrWhiteSpace(surname))
-            return new Error(PersonNameErrors.SurnameWasEmpty());
+            return new Error(PersonNameErrors.SurnameWasEmpty(), ErrorStatusCode.BadRequest);
         if (surname.Length > MaxNamePartsLength)
-            return new Error(PersonNameErrors.SurnameExceedsLength(MaxNamePartsLength));
+            return new Error(
+                PersonNameErrors.SurnameExceedsLength(MaxNamePartsLength),
+                ErrorStatusCode.BadRequest
+            );
         if (!string.IsNullOrWhiteSpace(patronymic) && patronymic.Length > MaxNamePartsLength)
-            return new Error(PersonNameErrors.PatronymicExceedsLength(MaxNamePartsLength));
+            return new Error(
+                PersonNameErrors.PatronymicExceedsLength(MaxNamePartsLength),
+                ErrorStatusCode.BadRequest
+            );
         return string.IsNullOrWhiteSpace(patronymic)
             ? new PersonName(name, surname)
             : new PersonName(name, surname, patronymic);

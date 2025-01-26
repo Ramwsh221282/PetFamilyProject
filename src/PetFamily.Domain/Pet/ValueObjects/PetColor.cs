@@ -15,12 +15,14 @@ public record PetColor
     public static Result<PetColor> Create(string? colorValue) =>
         colorValue switch
         {
-            null => new Error(PetColorErrors.PetColorWasNull()),
+            null => new Error(PetColorErrors.PetColorWasNull(), ErrorStatusCode.BadRequest),
             not null when string.IsNullOrWhiteSpace(colorValue) => new Error(
-                SpecieTypeErrors.SpecieTypeEmptyError()
+                SpecieTypeErrors.SpecieTypeEmptyError(),
+                ErrorStatusCode.BadRequest
             ),
             not null when colorValue.Length > MaxColorValueLength => new Error(
-                SpecieTypeErrors.SpecieTypeExceedsLength(MaxColorValueLength)
+                SpecieTypeErrors.SpecieTypeExceedsLength(MaxColorValueLength),
+                ErrorStatusCode.BadRequest
             ),
             _ => new PetColor(colorValue),
         };

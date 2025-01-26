@@ -19,10 +19,22 @@ public record PetBodyMetrics
     public static Result<PetBodyMetrics> Create(double weight, double heigth) =>
         (weight, heigth) switch
         {
-            (<= 0, _) => new Error(PetBodyMetricsErrors.WeightIsLessThanZero()),
-            (_, <= 0) => new Error(PetBodyMetricsErrors.HeightIsLessThanZero()),
-            (> MaxWeight, _) => new Error(PetBodyMetricsErrors.WeirdWeightError()),
-            (_, > MaxHeight) => new Error(PetBodyMetricsErrors.WeirdHeightError()),
+            (<= 0, _) => new Error(
+                PetBodyMetricsErrors.WeightIsLessThanZero(),
+                ErrorStatusCode.BadRequest
+            ),
+            (_, <= 0) => new Error(
+                PetBodyMetricsErrors.HeightIsLessThanZero(),
+                ErrorStatusCode.BadRequest
+            ),
+            (> MaxWeight, _) => new Error(
+                PetBodyMetricsErrors.WeirdWeightError(),
+                ErrorStatusCode.BadRequest
+            ),
+            (_, > MaxHeight) => new Error(
+                PetBodyMetricsErrors.WeirdHeightError(),
+                ErrorStatusCode.BadRequest
+            ),
             _ => new PetBodyMetrics(weight, heigth),
         };
 }

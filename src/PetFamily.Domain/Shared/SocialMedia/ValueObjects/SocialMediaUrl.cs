@@ -12,9 +12,9 @@ public record SocialMediaUrl
     public static Result<SocialMediaUrl> Create(string? url)
     {
         if (string.IsNullOrWhiteSpace(url))
-            return new Error(SocialMediaUrlErrors.UrlEmpty());
+            return new Error(SocialMediaUrlErrors.UrlEmpty(), ErrorStatusCode.BadRequest);
         if (!UrlValidationHelper.IsUrlValid(url))
-            return new Error(SocialMediaUrlErrors.UrlIsInvalid());
+            return new Error(SocialMediaUrlErrors.UrlIsInvalid(), ErrorStatusCode.BadRequest);
         return new SocialMediaUrl(url);
     }
 }

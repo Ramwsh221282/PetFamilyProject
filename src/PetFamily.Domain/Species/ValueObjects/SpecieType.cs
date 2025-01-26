@@ -14,12 +14,14 @@ public record SpecieType
     public static Result<SpecieType> Create(string? type) =>
         type switch
         {
-            null => new Error(SpecieTypeErrors.SpecieTypeNullError()),
+            null => new Error(SpecieTypeErrors.SpecieTypeNullError(), ErrorStatusCode.BadRequest),
             not null when string.IsNullOrWhiteSpace(type) => new Error(
-                SpecieTypeErrors.SpecieTypeEmptyError()
+                SpecieTypeErrors.SpecieTypeEmptyError(),
+                ErrorStatusCode.BadRequest
             ),
             not null when type.Length > MaxSpecieTypeLength => new Error(
-                SpecieTypeErrors.SpecieTypeExceedsLength(MaxSpecieTypeLength)
+                SpecieTypeErrors.SpecieTypeExceedsLength(MaxSpecieTypeLength),
+                ErrorStatusCode.BadRequest
             ),
             _ => new SpecieType(type),
         };

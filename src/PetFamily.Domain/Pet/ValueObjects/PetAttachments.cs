@@ -18,12 +18,14 @@ public sealed record Photo
     public static Result<Photo> Create(string filePath) =>
         filePath switch
         {
-            null => new Error(PhotoErrors.PathWasNull()),
+            null => new Error(PhotoErrors.PathWasNull(), ErrorStatusCode.BadRequest),
             not null when string.IsNullOrWhiteSpace(filePath) => new Error(
-                PhotoErrors.PathWasEmpty()
+                PhotoErrors.PathWasEmpty(),
+                ErrorStatusCode.BadRequest
             ),
-            not null when !_extensions.Any(ex => filePath.Contains(ex)) => new Error(
-                PhotoErrors.UnsupportedPhotoExtensions()
+            not null when !_extensions.Any(filePath.Contains) => new Error(
+                PhotoErrors.UnsupportedPhotoExtensions(),
+                ErrorStatusCode.BadRequest
             ),
             _ => new Photo(filePath),
         };

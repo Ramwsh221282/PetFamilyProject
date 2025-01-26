@@ -30,7 +30,10 @@ public class Specie
     public Result AddBreed(Breed breed)
     {
         if (OwnsBreed(breed))
-            return new Error("Such breed already exists in this specie");
+            return new Error(
+                "Such breed already exists in this specie",
+                ErrorStatusCode.BadRequest
+            );
         _breeds.Add(breed);
         return Result.Success();
     }
@@ -38,7 +41,7 @@ public class Specie
     public Result RemoveBreed(Breed breed)
     {
         if (!OwnsBreed(breed))
-            return new Error("Specie hasn't such breed");
+            return new Error("Specie hasn't such breed", ErrorStatusCode.BadRequest);
         _breeds.Remove(breed);
         return Result.Success();
     }

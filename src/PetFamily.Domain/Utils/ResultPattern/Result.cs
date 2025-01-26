@@ -1,10 +1,5 @@
 namespace PetFamily.Domain.Utils.ResultPattern;
 
-public sealed record Error(string Description)
-{
-    public static Error None = new("");
-}
-
 public class Result
 {
     public bool IsSuccess { get; }
@@ -23,9 +18,9 @@ public class Result
         Error = error;
     }
 
-    public static Result Failure(Error error) => new(error);
+    public static Result Failure(Error concreteError) => new(concreteError);
 
-    public static implicit operator Result(Error error) => Failure(error);
+    public static implicit operator Result(Error concreteError) => Failure(concreteError);
 
     public static Result Success() => new();
 }
@@ -39,11 +34,11 @@ public sealed class Result<TValue> : Result
     private Result(Error error)
         : base(error) { }
 
-    public static new Result<TValue> Failure(Error error) => new(error);
+    public new static Result<TValue> Failure(Error concreteError) => new(concreteError);
 
     public static Result<TValue> Success(TValue value) => new(value);
 
-    public static implicit operator Result<TValue>(Error error) => Failure(error);
+    public static implicit operator Result<TValue>(Error concreteError) => Failure(concreteError);
 
     public static implicit operator Result<TValue>(TValue value) => Success(value);
 

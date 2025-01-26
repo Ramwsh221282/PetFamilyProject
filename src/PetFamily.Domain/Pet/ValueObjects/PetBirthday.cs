@@ -12,7 +12,10 @@ public record PetBirthday
     {
         DateOnly today = DateOnly.FromDateTime(DateTime.Today);
         if (birthDay > today)
-            return new Error(PetBirthdayErrors.DateIsMoreThanCurrentDate());
+            return new Error(
+                PetBirthdayErrors.DateIsMoreThanCurrentDate(),
+                ErrorStatusCode.BadRequest
+            );
         return new PetBirthday(birthDay);
     }
 }

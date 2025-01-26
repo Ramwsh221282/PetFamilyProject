@@ -22,15 +22,21 @@ public record AccountDetails
     public static Result<AccountDetails> Create(string? description, string? name)
     {
         if (string.IsNullOrWhiteSpace(description))
-            return new Error(AccountDetailsErrors.DescriptionIsEmpty());
+            return new Error(AccountDetailsErrors.DescriptionIsEmpty(), ErrorStatusCode.BadRequest);
         if (description.Length > MaxAccountDetailsDescriptionLength)
             return new Error(
-                AccountDetailsErrors.DescriptionExceedsMaxLength(MaxAccountDetailsDescriptionLength)
+                AccountDetailsErrors.DescriptionExceedsMaxLength(
+                    MaxAccountDetailsDescriptionLength
+                ),
+                ErrorStatusCode.BadRequest
             );
         if (string.IsNullOrWhiteSpace(name))
-            return new Error(AccountDetailsErrors.NameIsEmpty());
+            return new Error(AccountDetailsErrors.NameIsEmpty(), ErrorStatusCode.BadRequest);
         if (name.Length > MaxAccountDetailsNameLength)
-            return new Error(AccountDetailsErrors.NameExceedsLength(MaxAccountDetailsNameLength));
+            return new Error(
+                AccountDetailsErrors.NameExceedsLength(MaxAccountDetailsNameLength),
+                ErrorStatusCode.BadRequest
+            );
         return new AccountDetails(description, name);
     }
 }

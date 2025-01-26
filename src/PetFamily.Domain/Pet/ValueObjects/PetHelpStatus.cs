@@ -28,7 +28,7 @@ public abstract record PetHelpStatus
             (int)PetHelpStatuses.LookingForHouse => new LookingForHouse(
                 PetHelpStatuses.LookingForHouse
             ),
-            _ => new Error(PetHelpStatusErrors.UnknownPetHelpStatus()),
+            _ => new Error(PetHelpStatusErrors.UnknownPetHelpStatus(), ErrorStatusCode.BadRequest),
         };
 }
 
