@@ -16,14 +16,4 @@ public sealed class SocialMediaCollection
     }
 }
 
-public sealed record SocialMedia
-{
-    public SocialMediaName Name { get; }
-    public SocialMediaUrl Url { get; }
-
-    public SocialMedia(SocialMediaName name, SocialMediaUrl url)
-    {
-        Name = name;
-        Url = url;
-    }
-}
+public sealed record SocialMedia(SocialMediaName Name, SocialMediaUrl Url);

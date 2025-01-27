@@ -25,26 +25,17 @@ public class Specie
 
     #region Behavior
 
-    public void ChangeSpecieType(SpecieType type) => Type = type;
+    public void ChangeType(SpecieType type) => Type = type;
 
-    public Result AddBreed(Breed breed)
-    {
-        if (OwnsBreed(breed))
-            return new Error(
-                "Such breed already exists in this specie",
-                ErrorStatusCode.BadRequest
-            );
-        _breeds.Add(breed);
-        return Result.Success();
-    }
-
-    public Result RemoveBreed(Breed breed)
-    {
-        if (!OwnsBreed(breed))
-            return new Error("Specie hasn't such breed", ErrorStatusCode.BadRequest);
-        _breeds.Remove(breed);
-        return Result.Success();
-    }
+    public Result AddBreed(Breed breed) => new ResultPipe()
+        .Check(OwnsBreed(breed), SpecieErrors.SpecieAlreadyHasThisBreed(breed))
+        .WithAction(() => _breeds.Add(breed))
+        .FromPipe(Result.Success);
+    
+    public Result RemoveBreed(Breed breed) => new ResultPipe()
+        .Check(!OwnsBreed(breed), SpecieErrors.SpecieDoesntHaveThisBreed(breed))
+        .WithAction(() => _breeds.Remove(breed))
+        .FromPipe(Result.Success);
 
     #endregion
 
@@ -54,4 +45,12 @@ public class Specie
         _breeds.Any(b => b.Id == breed.Id || b.Name == breed.Name);
 
     #endregion
+}
+
+public static class SpecieErrors
+{
+    public static Error SpecieAlreadyHasThisBreed(Breed breed) =>
+        new Error($"Specie already has this breed {breed.Name}", ErrorStatusCode.BadRequest);
+    public static Error SpecieDoesntHaveThisBreed(Breed breed) =>
+        new Error($"Specie doesn't have this breed {breed.Name}", ErrorStatusCode.BadRequest);
 }

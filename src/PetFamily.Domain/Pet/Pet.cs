@@ -5,7 +5,7 @@ using PetFamily.Domain.Utils.IdUtils.Implementations;
 
 namespace PetFamily.Domain.Pet;
 
-public class Pet
+public sealed class Pet
 {
     #region Attributes
 
@@ -61,21 +61,27 @@ public class Pet
 
     #region Behavior
 
-    public void UpdatePetName(PetName newName) => Name = newName;
-
-    public void UpdatePetBodyMetrics(PetBodyMetrics newBodyMetrics) => BodyMetrics = newBodyMetrics;
-
-    public void UpdatePetHealthStatus(PetHealthStatus newStatus) => PetHealth = newStatus;
-
-    public void UpdatePetDescription(Description newDescription) => Description = newDescription;
-
-    public void UpdatePetHelpStatus(PetHelpStatus newStatus) => HelpStatus = newStatus;
-
-    public void UpdatePetAddress(PetAddress newAddress) => Address = newAddress;
-
-    public void UpdatePetOwnerContacts(Contacts newContacts) => OwnerContacts = newContacts;
-
-    public void UpdatePetColor(PetColor newColor) => Color = newColor;
-
+    public void Update(PetName? name = null, PetBodyMetrics? body = null, PetHealthStatus? health = null,
+        Description? description = null, PetHelpStatus? help = null, PetAddress? address = null,
+        Contacts? ownerContacts = null, PetColor? color = null)
+    {
+        if (name != null)
+            Name = name;
+        if (body != null)
+            BodyMetrics = body;
+        if (health != null)
+            PetHealth = health;
+        if (description != null)
+            Description = description;
+        if(help != null)
+            HelpStatus = help;
+        if (address != null)
+            Address = address;
+        if (ownerContacts != null)
+            OwnerContacts = ownerContacts;
+        if (color != null)
+            Color = color;
+    }
+    
     #endregion
 }

@@ -8,7 +8,7 @@ using PetFamily.Domain.Volunteer.ValueObjects;
 
 namespace PetFamily.Domain.Volunteer;
 
-public class Volunteer
+public sealed class Volunteer
 {
     #region Attributes
 
@@ -58,36 +58,35 @@ public class Volunteer
         return Optional<int>.Some(_pets.Count(p => p.HelpStatus.StatusCode == status));
     }
 
-    public Result CarryPet(Pet.Pet pet)
-    {
-        if (OwnsPet(pet))
-            return new Error("Volunteer charges such pet already", ErrorStatusCode.BadRequest);
-        _pets.Add(pet);
-        return Result.Success();
-    }
-
-    public Result DropPet(PetId id)
-    {
-        if (!OwnsPet(id))
-            return new Error("Volunteer doesn't charge this pet", ErrorStatusCode.BadRequest);
-        _pets.RemoveAll(p => p.Id == id);
-        return Result.Success();
-    }
+    public Result CarryPet(Pet.Pet pet) => new ResultPipe()
+        .Check(!OwnsPet(pet), VolunteerErrors.AlreadyCarriesPet(pet))
+        .WithAction(() => _pets.Add(pet))
+        .FromPipe(Result.Success);
+    
+    public Result DropPet(Pet.Pet pet) => new ResultPipe()
+        .Check(!OwnsPet(pet), VolunteerErrors.DoesntCarryPet(pet))
+        .WithAction(() => _pets.Remove(pet))
+        .FromPipe(Result.Success);
 
     public Optional<Pet.Pet> GetPet(Func<Pet.Pet, bool> predicate) =>
         Optional<Pet.Pet>.Some(_pets.FirstOrDefault(predicate));
 
-    public void IncremenetVolunteerExperience()
+    public void Update(Description? description = null, ExperienceInYears? experience = null, AccountDetails? details = null)
     {
-        ExperienceInYears years = ExperienceInYears.Create(Experience.Years);
-        Experience = years;
+        if (description != null)
+            Description = description;
+        if (experience != null)
+            Experience = experience;
+        if (details != null)
+            AccountDetails = details;
     }
 
-    public void AdjustVolunteerExperience(ExperienceInYears experience) => Experience = experience;
-
-    public void SetNewDescription(Description description) => Description = description;
-
-    public void SetNewAccountDetails(AccountDetails details) => AccountDetails = details;
+    public void IncremenetVolunteerExperience()
+    {
+        int years = Experience.Years;
+        years += 1;
+        Experience = ExperienceInYears.Create(years);
+    }
 
     #endregion
 
@@ -95,7 +94,13 @@ public class Volunteer
 
     private bool OwnsPet(Pet.Pet pet) => _pets.Any(p => p.Id == pet.Id);
 
-    private bool OwnsPet(PetId petId) => _pets.Any(p => p.Id == petId);
-
     #endregion
+}
+
+public static class VolunteerErrors
+{
+    public static Error AlreadyCarriesPet(Pet.Pet pet) =>
+        new($"Volunteer already carries {pet.Name}", ErrorStatusCode.BadRequest);
+    public static Error DoesntCarryPet(Pet.Pet pet) =>
+        new($"Volunteer doesn't carry {pet.Name}", ErrorStatusCode.BadRequest);
 }

@@ -10,34 +10,26 @@ public abstract record Contacts
     public string Phone { get; }
     public string Email { get; }
 
-    protected Contacts(string phone, string email = "")
+    protected Contacts(string phone, string? email = null)
     {
         Phone = phone;
-        Email = email;
+        Email = email ?? "";
     }
 
-    public static Result<Contacts> Create(string? phone, string? email)
-    {
-        if (string.IsNullOrWhiteSpace(phone))
-            return new Error(ContactsErrors.PhoneWasNull(), ErrorStatusCode.BadRequest);
-        if (!PhoneValidationHelper.IsPhoneValid(phone))
-            return new Error(ContactsErrors.PhoneWasIncorrect(), ErrorStatusCode.BadRequest);
-        if (phone.Length > MaxPhoneLength)
-            return new Error(
-                ContactsErrors.PhoneExceedsMaxLength(MaxPhoneLength),
-                ErrorStatusCode.BadRequest
-            );
-        if (!string.IsNullOrWhiteSpace(email) && !EmailValidationHelper.IsEmailValid(email))
-            return new Error(ContactsErrors.EmailWasIncorrect(), ErrorStatusCode.BadRequest);
-        if (!string.IsNullOrWhiteSpace(email) && email.Length > MaxEmailLength)
-            return new Error(
-                ContactsErrors.EmailExceedsMaxLength(MaxEmailLength),
-                ErrorStatusCode.BadRequest
-            );
-        return string.IsNullOrWhiteSpace(email)
-            ? new PhoneOnlyContacts(phone)
-            : new FullContacts(phone, email);
-    }
+    public static Result<Contacts> Create(string? phone, string? email) => new ResultPipe()
+        .Check(string.IsNullOrWhiteSpace(phone), ContactsErrors.PhoneWasNull)
+        .Check(!string.IsNullOrWhiteSpace(phone) && phone.Length > MaxPhoneLength, ContactsErrors.PhoneExceedsMaxLength)
+        .Check(!string.IsNullOrWhiteSpace(phone) && !PhoneValidationHelper.IsPhoneValid(phone), ContactsErrors.PhoneWasIncorrect)
+        .Check(!string.IsNullOrWhiteSpace(email) && !EmailValidationHelper.IsEmailValid(email),
+            ContactsErrors.EmailWasIncorrect)
+        .Check(!string.IsNullOrWhiteSpace(email) && email.Length > MaxEmailLength, ContactsErrors.EmailExceedsMaxLength)
+        .FromPipe(() => 
+        {
+            Contacts contacts = string.IsNullOrWhiteSpace(email)
+                ? new PhoneOnlyContacts(phone!)
+                : new FullContacts(phone!, email);
+            return contacts;
+        });
 }
 
 public sealed record PhoneOnlyContacts : Contacts
@@ -54,15 +46,14 @@ public sealed record FullContacts : Contacts
 
 public static class ContactsErrors
 {
-    public static string PhoneWasNull() => "Phone was null";
-
-    public static string PhoneWasIncorrect() => "Phone is incorrect";
-
-    public static string EmailWasIncorrect() => "Email is incorrect";
-
-    public static string PhoneExceedsMaxLength(int length) =>
-        $"Phone is more than {length} characters";
-
-    public static string EmailExceedsMaxLength(int length) =>
-        $"Email is more than {length} characters";
+    public static Error PhoneWasNull => 
+        new("Phone was null", ErrorStatusCode.BadRequest);
+    public static Error PhoneWasIncorrect => 
+        new("Phone is incorrect", ErrorStatusCode.BadRequest);
+    public static Error EmailWasIncorrect => 
+        new("Email is incorrect", ErrorStatusCode.BadRequest);
+    public static Error PhoneExceedsMaxLength =>
+        new($"Phone is more than {Contacts.MaxPhoneLength} characters", ErrorStatusCode.BadRequest);
+    public static Error EmailExceedsMaxLength =>
+        new($"Email is more than {Contacts.MaxEmailLength} characters", ErrorStatusCode.BadRequest);
 }

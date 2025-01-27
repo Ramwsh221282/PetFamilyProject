@@ -7,9 +7,7 @@ public record AccountDetails
 {
     public const int MaxAccountDetailsDescriptionLength = 500;
     public const int MaxAccountDetailsNameLength = 100;
-
     public static AccountDetails Unknown => new AccountDetails("", "");
-
     public string Description { get; }
     public string Name { get; }
 
@@ -19,37 +17,23 @@ public record AccountDetails
         Name = name.CapitalizeFirstLetter();
     }
 
-    public static Result<AccountDetails> Create(string? description, string? name)
-    {
-        if (string.IsNullOrWhiteSpace(description))
-            return new Error(AccountDetailsErrors.DescriptionIsEmpty(), ErrorStatusCode.BadRequest);
-        if (description.Length > MaxAccountDetailsDescriptionLength)
-            return new Error(
-                AccountDetailsErrors.DescriptionExceedsMaxLength(
-                    MaxAccountDetailsDescriptionLength
-                ),
-                ErrorStatusCode.BadRequest
-            );
-        if (string.IsNullOrWhiteSpace(name))
-            return new Error(AccountDetailsErrors.NameIsEmpty(), ErrorStatusCode.BadRequest);
-        if (name.Length > MaxAccountDetailsNameLength)
-            return new Error(
-                AccountDetailsErrors.NameExceedsLength(MaxAccountDetailsNameLength),
-                ErrorStatusCode.BadRequest
-            );
-        return new AccountDetails(description, name);
-    }
+    public static Result<AccountDetails> Create(string? description, string? name) => new ResultPipe()
+        .Check(string.IsNullOrWhiteSpace(description), AccountDetailsErrors.DescriptionIsEmpty)
+        .Check(string.IsNullOrWhiteSpace(name), AccountDetailsErrors.NameIsEmpty)
+        .Check(!string.IsNullOrWhiteSpace(description) && description.Length > MaxAccountDetailsDescriptionLength,
+            AccountDetailsErrors.DescriptionExceedsMaxLength)
+        .Check(!string.IsNullOrWhiteSpace(name) && name.Length > MaxAccountDetailsNameLength, AccountDetailsErrors.NameExceedsLength)
+        .FromPipe(new AccountDetails(description!, name!));
 }
 
 public static class AccountDetailsErrors
 {
-    public static string DescriptionIsEmpty() => "Account description was empty";
-
-    public static string DescriptionExceedsMaxLength(int length) =>
-        $"Account description is more than {length} characters";
-
-    public static string NameIsEmpty() => "Account name is empty";
-
-    public static string NameExceedsLength(int length) =>
-        $"Account name is more than {length} characters";
+    public static Error DescriptionIsEmpty => 
+        new("Account description was empty", ErrorStatusCode.BadRequest);
+    public static Error DescriptionExceedsMaxLength =>
+        new($"Account description is more than {AccountDetails.MaxAccountDetailsDescriptionLength} characters", ErrorStatusCode.BadRequest);
+    public static Error NameIsEmpty => 
+        new("Account name is empty", ErrorStatusCode.BadRequest);
+    public static Error NameExceedsLength =>
+        new($"Account name is more than {AccountDetails.MaxAccountDetailsNameLength} characters", ErrorStatusCode.BadRequest);
 }

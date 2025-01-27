@@ -1,11 +1,8 @@
-using FluentValidation;
-using FluentValidation.Results;
 using PetFamily.Domain.Shared.SocialMedia;
 using PetFamily.Domain.Shared.ValueObjects;
 using PetFamily.Domain.Utils.ResultPattern;
 using PetFamily.Domain.Volunteer;
 using PetFamily.Domain.Volunteer.ValueObjects;
-using PetFamily.UseCases.Shared;
 using PetFamily.UseCases.Shared.DTOs;
 using PetFamily.UseCases.Volunteers.Contracts;
 
@@ -22,22 +19,16 @@ public record CreateVolunteerRequest(
 public sealed class CreateVolunteerRequestHandler
 {
     private readonly IVolunteerRepository _repository;
-    private readonly IValidator<CreateVolunteerRequest> _validator;
 
     public CreateVolunteerRequestHandler(
-        IVolunteerRepository repository,
-        IValidator<CreateVolunteerRequest> validator
+        IVolunteerRepository repository
     )
     {
         _repository = repository;
-        _validator = validator;
     }
 
     public async Task<Result<Guid>> Handle(CreateVolunteerRequest request)
     {
-        ValidationResult validation = _validator.Validate(request);
-        if (!validation.IsValid)
-            return validation.ToFailureResult<Guid>();
         Contacts contacts = request.ContactsDetails.ToValueObject();
         PersonName name = request.NameDetails.ToValueObject();
         AccountDetails account = request.AccountDetails.ToValueObject();
@@ -52,7 +43,7 @@ public sealed class CreateVolunteerRequestHandler
             account,
             media
         );
-        await _repository.AddVolunteer(volunteer);
+        //await _repository.AddVolunteer(volunteer);
         return volunteer.Id.Id;
     }
 }

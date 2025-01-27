@@ -15,37 +15,20 @@ public record PetBodyMetrics
         Weight = weight;
         Height = height;
     }
-
+    
     public static Result<PetBodyMetrics> Create(double weight, double heigth) =>
-        (weight, heigth) switch
-        {
-            (<= 0, _) => new Error(
-                PetBodyMetricsErrors.WeightIsLessThanZero(),
-                ErrorStatusCode.BadRequest
-            ),
-            (_, <= 0) => new Error(
-                PetBodyMetricsErrors.HeightIsLessThanZero(),
-                ErrorStatusCode.BadRequest
-            ),
-            (> MaxWeight, _) => new Error(
-                PetBodyMetricsErrors.WeirdWeightError(),
-                ErrorStatusCode.BadRequest
-            ),
-            (_, > MaxHeight) => new Error(
-                PetBodyMetricsErrors.WeirdHeightError(),
-                ErrorStatusCode.BadRequest
-            ),
-            _ => new PetBodyMetrics(weight, heigth),
-        };
+        new ResultPipe()
+            .Check(weight <= 0, PetBodyMetricsErrors.WeightIsLessThanZero)
+            .Check(heigth <= 0, PetBodyMetricsErrors.HeightIsLessThanZero)
+            .Check(weight > MaxWeight, PetBodyMetricsErrors.WeirdWeightError)
+            .Check(heigth > MaxHeight, PetBodyMetricsErrors.WeirdHeightError)
+            .FromPipe(new PetBodyMetrics(weight, heigth));
 }
 
 public static class PetBodyMetricsErrors
 {
-    public static string WeightIsLessThanZero() => "Pet weight should be greater than 0";
-
-    public static string HeightIsLessThanZero() => "Pet height should be greater than 0";
-
-    public static string WeirdWeightError() => "Pet weight is weird";
-
-    public static string WeirdHeightError() => "Pet height is weird";
+    public static Error WeightIsLessThanZero => new("Pet weight should be greater than 0", ErrorStatusCode.BadRequest);
+    public static Error HeightIsLessThanZero => new("Pet height should be greater than 0", ErrorStatusCode.BadRequest);
+    public static Error WeirdWeightError => new("Pet weight is weird", ErrorStatusCode.BadRequest);
+    public static Error WeirdHeightError => new("Pet height is weird", ErrorStatusCode.BadRequest);
 }

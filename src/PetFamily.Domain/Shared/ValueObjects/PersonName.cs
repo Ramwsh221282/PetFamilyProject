@@ -3,16 +3,12 @@ using PetFamily.Domain.Utils.ResultPattern;
 
 namespace PetFamily.Domain.Shared.ValueObjects;
 
-public record PersonName
+public sealed record PersonName
 {
     public const int MaxNamePartsLength = 50;
-
     public string Name { get; }
-
     public string Surname { get; }
-
     public string Patronymic { get; }
-
     private PersonName(string name, string surname, string patronymic = "")
     {
         Name = name.CapitalizeFirstLetter();
@@ -20,45 +16,30 @@ public record PersonName
         Patronymic = patronymic.CapitalizeFirstLetter();
     }
 
-    public static Result<PersonName> Create(string? name, string? surname, string? patronymic)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            return new Error(PersonNameErrors.NameWasEmpty(), ErrorStatusCode.BadRequest);
-        if (name.Length > MaxNamePartsLength)
-            return new Error(
-                PersonNameErrors.NameExceedsLength(MaxNamePartsLength),
-                ErrorStatusCode.BadRequest
-            );
-        if (string.IsNullOrWhiteSpace(surname))
-            return new Error(PersonNameErrors.SurnameWasEmpty(), ErrorStatusCode.BadRequest);
-        if (surname.Length > MaxNamePartsLength)
-            return new Error(
-                PersonNameErrors.SurnameExceedsLength(MaxNamePartsLength),
-                ErrorStatusCode.BadRequest
-            );
-        if (!string.IsNullOrWhiteSpace(patronymic) && patronymic.Length > MaxNamePartsLength)
-            return new Error(
-                PersonNameErrors.PatronymicExceedsLength(MaxNamePartsLength),
-                ErrorStatusCode.BadRequest
-            );
-        return string.IsNullOrWhiteSpace(patronymic)
-            ? new PersonName(name, surname)
-            : new PersonName(name, surname, patronymic);
-    }
+    public static Result<PersonName> Create(string? name, string? surname, string? patronymic) =>
+        new ResultPipe()
+            .Check(string.IsNullOrWhiteSpace(name), PersonNameErrors.NameWasEmpty)
+            .Check(string.IsNullOrWhiteSpace(surname), PersonNameErrors.SurnameWasEmpty)
+            .Check(!string.IsNullOrWhiteSpace(name) && name.Length > MaxNamePartsLength, PersonNameErrors.NameExceedsLength)
+            .Check(!string.IsNullOrWhiteSpace(surname) && surname.Length > MaxNamePartsLength, PersonNameErrors.SurnameExceedsLength)
+            .Check(!string.IsNullOrWhiteSpace(patronymic) && patronymic.Length > MaxNamePartsLength,
+                PersonNameErrors.PatronymicExceedsLength)
+            .FromPipe(() =>
+                string.IsNullOrWhiteSpace(patronymic)
+                    ? new PersonName(name!, surname!)
+                    : new PersonName(name!, surname!, patronymic));
 }
 
 public static class PersonNameErrors
 {
-    public static string NameExceedsLength(int length) =>
-        $"Name cannot be more than {length} characters";
-
-    public static string SurnameExceedsLength(int length) =>
-        $"Name cannot be more than {length} characters";
-
-    public static string PatronymicExceedsLength(int length) =>
-        $"Name cannot be more than {length} characters";
-
-    public static string NameWasEmpty() => "Name was empty";
-
-    public static string SurnameWasEmpty() => "Surname was empty";
+    public static Error NameExceedsLength =>
+        new($"Name cannot be more than {PersonName.MaxNamePartsLength} characters", ErrorStatusCode.BadRequest);
+    public static Error SurnameExceedsLength =>
+        new($"Name cannot be more than {PersonName.MaxNamePartsLength} characters", ErrorStatusCode.BadRequest);
+    public static Error PatronymicExceedsLength =>
+        new($"Name cannot be more than {PersonName.MaxNamePartsLength} characters", ErrorStatusCode.BadRequest);
+    public static Error NameWasEmpty => 
+        new("Name was empty", ErrorStatusCode.BadRequest);
+    public static Error SurnameWasEmpty => 
+        new("Surname was empty", ErrorStatusCode.BadRequest);
 }

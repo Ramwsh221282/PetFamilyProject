@@ -4,38 +4,26 @@ namespace PetFamily.Domain.Pet.ValueObjects;
 
 public sealed record PetAttachments
 {
-    public List<Photo> Photos { get; } = [];
+    private readonly List<Photo> _photos = [];
+    public IReadOnlyCollection<Photo> Photos => _photos;
 }
 
 public sealed record Photo
 {
     private static string[] _extensions = [".jpg", ".png", ".bmp", ".PNG"];
-
     public string Path { get; }
-
     private Photo(string path) => Path = path;
 
-    public static Result<Photo> Create(string filePath) =>
-        filePath switch
-        {
-            null => new Error(PhotoErrors.PathWasNull(), ErrorStatusCode.BadRequest),
-            not null when string.IsNullOrWhiteSpace(filePath) => new Error(
-                PhotoErrors.PathWasEmpty(),
-                ErrorStatusCode.BadRequest
-            ),
-            not null when !_extensions.Any(filePath.Contains) => new Error(
-                PhotoErrors.UnsupportedPhotoExtensions(),
-                ErrorStatusCode.BadRequest
-            ),
-            _ => new Photo(filePath),
-        };
+    public static Result<Photo> Create(string? filePath) =>
+        new ResultPipe()
+            .Check(string.IsNullOrWhiteSpace(filePath), PhotoErrors.PathWasEmpty)
+            .Check(!string.IsNullOrWhiteSpace(filePath) && !IsFileExtensionSupported(filePath), PhotoErrors.UnsupportedPhotoExtensions)
+            .FromPipe(new Photo(filePath!));
+    private static bool IsFileExtensionSupported(string filePath) => _extensions.Any(filePath.Contains);
 }
 
 public static class PhotoErrors
 {
-    public static string PathWasNull() => "Photo path was null";
-
-    public static string PathWasEmpty() => "Photo path was empty";
-
-    public static string UnsupportedPhotoExtensions() => "Unsupported photo extension";
+    public static Error PathWasEmpty => new Error("Photo path was empty", ErrorStatusCode.BadRequest);
+    public static Error UnsupportedPhotoExtensions => new Error("Unsupported photo extension", ErrorStatusCode.BadRequest);
 }

@@ -7,36 +7,34 @@ namespace PetFamily.UseCases.Shared;
 
 public static class ValidationExtensions
 {
-    public static IRuleBuilderOptionsConditions<T, TElement> MustSatisfy<T, TElement, TValueObject>(
-        this IRuleBuilder<T, TElement> ruleBuilder,
-        Func<TElement, Result<TValueObject>> validationFunc
-    )
-    {
-        return ruleBuilder.Custom(
-            (value, context) =>
+    public static IRuleBuilderOptions<TValidation, TExpected> MustSatisfy<TValidation, TExpected, TValueObject>(
+        this IRuleBuilder<TValidation, TExpected> builder, Func<TExpected, Result<TValueObject>> factory) =>
+        builder.Must(((_, expected) =>
+        {
+            var result = factory.Invoke(expected);
+            Type type = typeof(TValueObject);
+            string name = type.Name;
+            if (result.IsSuccess)
             {
-                Result<TValueObject> result = validationFunc.Invoke(value);
-                if (result.IsSuccess)
-                    return;
-                Error error = result.Error;
-                ValidationFailure failure = new ValidationFailure()
-                {
-                    ErrorMessage = error.Description,
-                    ErrorCode = error.Code.ToString(),
-                };
-                context.AddFailure(failure);
+                Console.WriteLine($"Success validation of: {name}");
+                return true;
             }
-        );
-    }
+            // ValidationFailure failure = new ValidationFailure()
+            // {
+            //     ErrorMessage = result.Error.Description,
+            //     ErrorCode = result.Error.StatusCode.ToString()
+            // };
+            // context.AddFailure(failure);
+            Console.WriteLine($"Failed validation of: {name}");
+            return false;
+        })).WithMessage(((_, expected) =>
+        {
+            var result = factory.Invoke(expected);
+            return result.IsSuccess ? "" : result.Error.Description;
+        }));
 
-    public static Result<T> ToFailureResult<T>(this ValidationResult result)
-    {
-        ValidationFailure failure = result.Errors[0];
-        bool isParsed = Enum.TryParse(failure.ErrorCode, out ErrorStatusCode code);
-        return isParsed
-            ? new Error(failure.ErrorMessage, code)
-            : new Error(failure.ErrorMessage, ErrorStatusCode.Unknown);
-    }
+    public static IServiceCollection AddValidation(this IServiceCollection collection) =>
+        collection.AddValidatorsFromAssembly(typeof(ValidationExtensions).Assembly);
 
     internal static IServiceCollection AddApplicationValidation(this IServiceCollection services)
     {

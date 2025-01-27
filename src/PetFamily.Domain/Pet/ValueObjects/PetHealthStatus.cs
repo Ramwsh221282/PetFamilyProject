@@ -12,7 +12,7 @@ public abstract record PetHealthStatus
     }
 
     public static PetHealthStatus Create(bool isVaccinated, bool isCastrated) =>
-        (isCastrated, isCastrated) switch
+        (isVaccinated, isCastrated) switch
         {
             (true, true) => new VaccinatedAndCastrated(),
             (false, true) => new CastratedOnly(),

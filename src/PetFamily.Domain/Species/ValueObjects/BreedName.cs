@@ -10,28 +10,16 @@ public record BreedName
 
     private BreedName(string breed) => BreedValue = breed.CapitalizeFirstLetter();
 
-    public static Result<BreedName> Create(string? breed) =>
-        breed switch
-        {
-            null => new Error(BreedNameErrors.BreedNameWasNull(), ErrorStatusCode.BadRequest),
-            not null when string.IsNullOrWhiteSpace(breed) => new Error(
-                BreedNameErrors.BreedNameWasEmpty(),
-                ErrorStatusCode.BadRequest
-            ),
-            not null when breed.Length > MaxBreedValueLength => new Error(
-                BreedNameErrors.BreedNameValueExceedsMaxLength(MaxBreedValueLength),
-                ErrorStatusCode.BadRequest
-            ),
-            _ => new BreedName(breed),
-        };
+    public static Result<BreedName> Create(string? breed) => new ResultPipe()
+        .Check(string.IsNullOrWhiteSpace(breed), BreedNameErrors.BreedNameWasEmpty)
+        .Check(!string.IsNullOrWhiteSpace(breed) && breed.Length > MaxBreedValueLength, BreedNameErrors.BreedNameValueExceedsMaxLength)
+        .FromPipe(() => new BreedName(breed!));
 }
 
 public static class BreedNameErrors
 {
-    public static string BreedNameWasNull() => "Breed was null";
-
-    public static string BreedNameWasEmpty() => "Breed was empty";
-
-    public static string BreedNameValueExceedsMaxLength(int maxLength) =>
-        $"Breed value is more than {maxLength} characters";
+    public static Error BreedNameWasEmpty => 
+        new("Breed was empty", ErrorStatusCode.BadRequest);
+    public static Error BreedNameValueExceedsMaxLength =>
+        new($"Breed value is more than {BreedName.MaxBreedValueLength} characters", ErrorStatusCode.BadRequest);
 }
