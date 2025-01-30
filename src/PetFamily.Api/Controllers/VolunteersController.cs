@@ -1,11 +1,11 @@
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using PetFamily.Api.Extensions;
 using PetFamily.Api.Responses;
-using PetFamily.Domain.Shared.ValueObjects;
 using PetFamily.Domain.Utils.ResultPattern;
 using PetFamily.UseCases.Volunteers.UseCases.CreateVolunteerUseCase;
+using PetFamily.UseCases.Volunteers.UseCases.RemoveVolunteerUseCase;
 
 namespace PetFamily.Api.Controllers;
 
@@ -14,17 +14,32 @@ namespace PetFamily.Api.Controllers;
 public class VolunteersController : Controller
 {
     [HttpPost]
-    public async Task<Results<BadRequest<Envelope>, Ok<Envelope>>> Create(
-        [FromServices] CreateVolunteerRequestHandler handler, IValidator<CreateVolunteerRequest> validator,
-        [FromBody] CreateVolunteerRequest request
+    public async Task<IResult> Create(
+        [FromServices] CreateVolunteerRequestHandler handler,
+        [FromServices] IValidator<CreateVolunteerRequest> validator,
+        [FromBody] CreateVolunteerRequest request,
+        CancellationToken ct = default
     )
     {
-        ValidationResult validation = await validator.ValidateAsync(request);
+        ValidationResult validation = await validator.ValidateAsync(request, ct);
         if (!validation.IsValid)
             return TypedResults.BadRequest(Envelope.ToError(validation));
-        Result<Guid> result = await handler.Handle(request);
-        return result.IsFailure
-            ? TypedResults.BadRequest(Envelope.ToError(result))
-            : TypedResults.Ok(Envelope.Ok(result.Value));
+        Result<CreateVolunteerResponse> creation = await handler.Handle(request, ct);
+        return creation.FromResult();
+    }
+
+    [HttpDelete]
+    public async Task<IResult> Delete(
+        [FromServices] RemoveVolunteerRequestHandler handler,
+        [FromServices] IValidator<RemoveVolunteerRequest> validator,
+        [FromBody] RemoveVolunteerRequest request,
+        CancellationToken ct = default
+    )
+    {
+        ValidationResult validation = await validator.ValidateAsync(request, ct);
+        if (!validation.IsValid)
+            return TypedResults.BadRequest(Envelope.ToError(validation));
+        Result<RemoveVolunteerResponse> deletion = await handler.Handle(request, ct);
+        return deletion.FromResult();
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using PetFamily.Domain.Shared.SocialMedia;
 using PetFamily.Domain.Shared.ValueObjects;
 using PetFamily.Domain.Utils.ResultPattern;
@@ -8,7 +9,7 @@ using PetFamily.UseCases.Volunteers.Contracts;
 
 namespace PetFamily.UseCases.Volunteers.UseCases.CreateVolunteerUseCase;
 
-public record CreateVolunteerRequest(
+public sealed record CreateVolunteerRequest(
     PersonNameDTO NameDetails,
     ContactsDTO ContactsDetails,
     AccountDetailsDTO AccountDetails,
@@ -16,18 +17,26 @@ public record CreateVolunteerRequest(
     List<SocialMediaDTO>? SocialMediaDetails
 );
 
+public sealed record CreateVolunteerResponse(VolunteerId Id);
+
 public sealed class CreateVolunteerRequestHandler
 {
     private readonly IVolunteerRepository _repository;
+    private readonly ILogger<CreateVolunteerRequestHandler> _logger;
 
     public CreateVolunteerRequestHandler(
-        IVolunteerRepository repository
+        IVolunteerRepository repository,
+        ILogger<CreateVolunteerRequestHandler> logger
     )
     {
         _repository = repository;
+        _logger = logger;
     }
 
-    public async Task<Result<Guid>> Handle(CreateVolunteerRequest request)
+    public async Task<Result<CreateVolunteerResponse>> Handle(
+        CreateVolunteerRequest request,
+        CancellationToken ct = default
+    )
     {
         Contacts contacts = request.ContactsDetails.ToValueObject();
         PersonName name = request.NameDetails.ToValueObject();
@@ -43,7 +52,14 @@ public sealed class CreateVolunteerRequestHandler
             account,
             media
         );
-        //await _repository.AddVolunteer(volunteer);
-        return volunteer.Id.Id;
+
+        Result<VolunteerId> insert = await _repository.AddVolunteer(volunteer, ct);
+        if (insert.IsSuccess)
+        {
+            _logger.LogInformation("Created volunteer. Id: {VolunteerId}", insert.Value.Id);
+            return Result<CreateVolunteerResponse>.Success(new(insert.Value));
+        }
+        _logger.LogError("Volunteer did not create. Error: {Message}", insert.Error.Description);
+        return insert.Error;
     }
 }
