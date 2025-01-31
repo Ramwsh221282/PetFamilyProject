@@ -59,6 +59,7 @@ public sealed class CreateVolunteerRequestHandler
             _logger.LogInformation("Created volunteer. Id: {VolunteerId}", insert.Value.Id);
             return Result<CreateVolunteerResponse>.Success(new(insert.Value));
         }
+
         _logger.LogError("Volunteer did not create. Error: {Message}", insert.Error.Description);
         return insert.Error;
     }
