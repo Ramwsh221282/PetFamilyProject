@@ -58,20 +58,26 @@ public sealed class Volunteer
         return Optional<int>.Some(_pets.Count(p => p.HelpStatus.StatusCode == status));
     }
 
-    public Result CarryPet(Pet.Pet pet) => new ResultPipe()
-        .Check(!OwnsPet(pet), VolunteerErrors.AlreadyCarriesPet(pet))
-        .WithAction(() => _pets.Add(pet))
-        .FromPipe(Result.Success);
-    
-    public Result DropPet(Pet.Pet pet) => new ResultPipe()
-        .Check(!OwnsPet(pet), VolunteerErrors.DoesntCarryPet(pet))
-        .WithAction(() => _pets.Remove(pet))
-        .FromPipe(Result.Success);
+    public Result CarryPet(Pet.Pet pet) =>
+        new ResultPipe()
+            .Check(!OwnsPet(pet), VolunteerErrors.AlreadyCarriesPet(pet))
+            .WithAction(() => _pets.Add(pet))
+            .FromPipe(Result.Success);
+
+    public Result DropPet(Pet.Pet pet) =>
+        new ResultPipe()
+            .Check(!OwnsPet(pet), VolunteerErrors.DoesntCarryPet(pet))
+            .WithAction(() => _pets.Remove(pet))
+            .FromPipe(Result.Success);
 
     public Optional<Pet.Pet> GetPet(Func<Pet.Pet, bool> predicate) =>
         Optional<Pet.Pet>.Some(_pets.FirstOrDefault(predicate));
 
-    public void Update(Description? description = null, ExperienceInYears? experience = null, AccountDetails? details = null)
+    public void Update(
+        Description? description = null,
+        ExperienceInYears? experience = null,
+        AccountDetails? details = null
+    )
     {
         if (description != null)
             Description = description;
@@ -101,6 +107,10 @@ public static class VolunteerErrors
 {
     public static Error AlreadyCarriesPet(Pet.Pet pet) =>
         new($"Volunteer already carries {pet.Name}", ErrorStatusCode.BadRequest);
+
     public static Error DoesntCarryPet(Pet.Pet pet) =>
         new($"Volunteer doesn't carry {pet.Name}", ErrorStatusCode.BadRequest);
+
+    public static Error NotFoundWithId(VolunteerId Id) =>
+        new("Volunteer with {id} does not exist", ErrorStatusCode.Unknown);
 }

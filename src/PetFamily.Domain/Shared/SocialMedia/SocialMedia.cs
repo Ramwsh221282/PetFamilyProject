@@ -6,6 +6,7 @@ public sealed class SocialMediaCollection
 {
     private readonly List<SocialMedia> _socialMedias = [];
     public IReadOnlyCollection<SocialMedia> SocialMedias => _socialMedias;
+    private SocialMediaCollection() { } // ef core
 
     public SocialMediaCollection(params SocialMedia[] medias)
     {
