@@ -17,7 +17,7 @@ public sealed record CreateVolunteerRequest(
     List<SocialMediaDTO>? SocialMediaDetails
 );
 
-public sealed record CreateVolunteerResponse(VolunteerId Id);
+public sealed record CreateVolunteerResponse(Guid Id);
 
 public sealed class CreateVolunteerRequestHandler
 {
@@ -53,11 +53,18 @@ public sealed class CreateVolunteerRequestHandler
             media
         );
 
-        Result<VolunteerId> insert = await _repository.AddVolunteer(volunteer, ct);
+        if (!await _repository.AreContactsUnique(volunteer, ct))
+        {
+            Error error = VolunteerErrors.NotUniqueContacts(volunteer.Contacts);
+            _logger.LogError("Volunteer was not created. Error: {ErrorMessage}", error.Description);
+            return error;
+        }
+
+        Result<VolunteerId> insert = await _repository.Add(volunteer, ct);
         if (insert.IsSuccess)
         {
             _logger.LogInformation("Created volunteer. Id: {VolunteerId}", insert.Value.Id);
-            return Result<CreateVolunteerResponse>.Success(new(insert.Value));
+            return Result<CreateVolunteerResponse>.Success(new(insert.Value.Id));
         }
 
         _logger.LogError("Volunteer did not create. Error: {Message}", insert.Error.Description);

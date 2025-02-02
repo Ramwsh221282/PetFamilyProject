@@ -1,14 +1,15 @@
 using PetFamily.Domain.Pet.ValueObjects;
+using PetFamily.Domain.Shared.EntityAbstractions;
+using PetFamily.Domain.Shared.Positioning;
 using PetFamily.Domain.Shared.ValueObjects;
 using PetFamily.Domain.Species.ValueObjects;
 using PetFamily.Domain.Utils.IdUtils.Implementations;
 
 namespace PetFamily.Domain.Pet;
 
-public sealed class Pet
+public sealed class Pet : ISoftDeletable, IPositionable<Pet>
 {
     #region Attributes
-
     public PetId Id { get; init; }
     public SpecieId SpecieId { get; }
     public BreedId BreedId { get; }
@@ -16,19 +17,23 @@ public sealed class Pet
     public PetBirthday Birthday { get; }
     public PetName Name { get; private set; }
     public PetBodyMetrics BodyMetrics { get; private set; }
-    public PetHealthStatus PetHealth { get; private set; } = new NeitherVaccinatedNorCastrated();
+    public PetHealthStatus PetHealth { get; private set; } = new PetHealthStatus(false, false);
     public Description Description { get; private set; } = Description.Empty;
     public PetHelpStatus HelpStatus { get; private set; }
     public PetAddress Address { get; private set; }
     public Contacts OwnerContacts { get; private set; }
     public PetColor Color { get; private set; }
     public PetAttachments Attachments { get; private set; } = new();
+    public bool IsDeleted { get; private set; }
+    public DateOnly? DeletedOn { get; private set; }
+    public Position Position { get; private set; }
 
     #endregion
 
     private Pet() { } // ef core
 
-    public Pet(
+    // Только волонтёр может добавить животное. Это доменная логика, поэтому конструктор internal.
+    internal Pet(
         PetName name,
         SpecieId specieId,
         BreedId breedId,
@@ -38,6 +43,7 @@ public sealed class Pet
         PetAddress address,
         Contacts ownerContacts,
         PetHelpStatus helpStatus,
+        List<Pet> pets, // тут добавился List<Pet> который есть у волонтёра, чтобы инициализировать Position
         PetHealthStatus? healthStatus = null,
         Description? description = null
     )
@@ -57,13 +63,21 @@ public sealed class Pet
             PetHealth = healthStatus;
         if (description != null)
             Description = description;
+        Position = Position.CreateNext(pets);
     }
 
     #region Behavior
 
-    public void Update(PetName? name = null, PetBodyMetrics? body = null, PetHealthStatus? health = null,
-        Description? description = null, PetHelpStatus? help = null, PetAddress? address = null,
-        Contacts? ownerContacts = null, PetColor? color = null)
+    public void Update(
+        PetName? name = null,
+        PetBodyMetrics? body = null,
+        PetHealthStatus? health = null,
+        Description? description = null,
+        PetHelpStatus? help = null,
+        PetAddress? address = null,
+        Contacts? ownerContacts = null,
+        PetColor? color = null
+    )
     {
         if (name != null)
             Name = name;
@@ -73,7 +87,7 @@ public sealed class Pet
             PetHealth = health;
         if (description != null)
             Description = description;
-        if(help != null)
+        if (help != null)
             HelpStatus = help;
         if (address != null)
             Address = address;
@@ -82,6 +96,27 @@ public sealed class Pet
         if (color != null)
             Color = color;
     }
-    
+
+    public void ChangePosition(Position position)
+    {
+        Position = position;
+    }
+
+    public void Delete()
+    {
+        if (IsDeleted)
+            return;
+        IsDeleted = true;
+        DeletedOn = DateOnly.FromDateTime(DateTime.Now);
+    }
+
+    public void Restore()
+    {
+        if (!IsDeleted)
+            return;
+        IsDeleted = false;
+        DeletedOn = null;
+    }
+
     #endregion
 }

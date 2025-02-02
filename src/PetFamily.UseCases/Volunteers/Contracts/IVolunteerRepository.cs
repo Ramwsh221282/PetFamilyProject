@@ -6,6 +6,8 @@ namespace PetFamily.UseCases.Volunteers.Contracts;
 
 public interface IVolunteerRepository
 {
-    Task<Result<VolunteerId>> AddVolunteer(Volunteer volunteer, CancellationToken ct = default);
-    Task<Result<VolunteerId>> RemoveVolunteer(VolunteerId id, CancellationToken ct = default);
+    Task<Result<VolunteerId>> Add(Volunteer volunteer, CancellationToken ct = default);
+    Task<Result<Volunteer>> GetById(VolunteerId id, CancellationToken ct = default);
+    Task<VolunteerId> Save(Volunteer volunteer, CancellationToken ct = default);
+    Task<bool> AreContactsUnique(Volunteer volunteer, CancellationToken ct = default);
 }

@@ -24,9 +24,20 @@ internal sealed class PetConfiguration : IEntityTypeConfiguration<Pet>
             )
             .HasColumnName("pet_id");
 
+        builder.Property(p => p.IsDeleted).HasColumnName("is_deleted");
+        builder.Property(p => p.DeletedOn).HasColumnName("deleted_on").IsRequired(false);
+
         #endregion
 
         #region Complex properties
+
+        builder.ComplexProperty(
+            p => p.Position,
+            cpb =>
+            {
+                cpb.Property(prio => prio.Value).HasColumnName("position");
+            }
+        );
 
         builder.ComplexProperty(
             p => p.BodyMetrics,

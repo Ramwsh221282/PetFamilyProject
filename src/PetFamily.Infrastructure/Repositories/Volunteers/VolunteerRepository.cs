@@ -15,24 +15,36 @@ public sealed class VolunteerRepository : IVolunteerRepository
         _context = context;
     }
 
-    public async Task<Result<VolunteerId>> AddVolunteer(
-        Volunteer volunteer,
-        CancellationToken ct = default
-    )
+    public async Task<Result<VolunteerId>> Add(Volunteer volunteer, CancellationToken ct = default)
     {
         await _context.AddAsync(volunteer, ct);
         await _context.SaveChangesAsync(ct);
         return volunteer.Id;
     }
 
-    public async Task<Result<VolunteerId>> RemoveVolunteer(
-        VolunteerId id,
-        CancellationToken ct = default
-    )
+    public async Task<Result<Volunteer>> GetById(VolunteerId id, CancellationToken ct = default)
     {
-        int deleted = await _context.Volunteers.Where(v => v.Id == id).ExecuteDeleteAsync(ct);
-        if (deleted == 0)
-            return VolunteerErrors.NotFoundWithId(id);
-        return id;
+        Volunteer? requested = await _context
+            .Volunteers.Include(v => v.Pets)
+            .FirstOrDefaultAsync(v => v.Id == id, ct);
+        return requested == null ? VolunteerErrors.NotFoundWithId(id) : requested;
     }
+
+    public async Task<VolunteerId> Save(Volunteer volunteer, CancellationToken ct = default)
+    {
+        _context.Volunteers.Attach(volunteer);
+        await _context.SaveChangesAsync(ct);
+        return volunteer.Id;
+    }
+
+    public async Task<bool> AreContactsUnique(
+        Volunteer volunteer,
+        CancellationToken ct = default
+    ) =>
+        !await _context.Volunteers.AnyAsync(
+            v =>
+                v.Contacts.Email == volunteer.Contacts.Email
+                || v.Contacts.Phone == volunteer.Contacts.Phone,
+            ct
+        );
 }

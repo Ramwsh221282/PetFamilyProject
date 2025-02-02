@@ -1,4 +1,5 @@
-﻿using PetFamily.Api.Responses;
+﻿using FluentValidation.Results;
+using PetFamily.Api.Responses;
 using PetFamily.Domain.Utils.ResultPattern;
 
 namespace PetFamily.Api.Extensions;
@@ -17,5 +18,12 @@ public static class ResponseExtensions
             ErrorStatusCode.Unknown => TypedResults.BadRequest(Envelope.ToError(result)),
             _ => throw new ApplicationException($"Unknown error occured."),
         };
+    }
+
+    public static IResult FromResult(this ValidationResult result)
+    {
+        if (result.IsValid)
+            return TypedResults.Ok();
+        return TypedResults.BadRequest(Envelope.ToError(result));
     }
 }

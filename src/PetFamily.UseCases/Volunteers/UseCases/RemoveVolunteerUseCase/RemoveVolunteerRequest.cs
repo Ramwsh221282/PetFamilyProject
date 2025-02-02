@@ -1,12 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
+using PetFamily.Domain.Utils.IdUtils.Implementations;
 using PetFamily.Domain.Utils.ResultPattern;
+using PetFamily.Domain.Volunteer;
 using PetFamily.Domain.Volunteer.ValueObjects;
 using PetFamily.UseCases.Shared.DTOs.VolunteerDTOs;
 using PetFamily.UseCases.Volunteers.Contracts;
 
 namespace PetFamily.UseCases.Volunteers.UseCases.RemoveVolunteerUseCase;
 
-public sealed record RemoveVolunteerRequest(VolunteerIdDTO Id);
+public sealed record RemoveVolunteerRequest(Guid Id);
 
 public sealed record RemoveVolunteerResponse(bool IsRemoved);
 
@@ -29,14 +31,17 @@ public sealed class RemoveVolunteerRequestHandler
         CancellationToken ct = default
     )
     {
-        VolunteerId id = request.Id.ToValueObject();
-        Result<VolunteerId> operation = await _repository.RemoveVolunteer(id, ct);
-        if (operation.IsSuccess)
+        VolunteerId id = new VolunteerId(new AdjustedGuidGenerationStrategy(request.Id));
+        Result<Volunteer> volunteer = await _repository.GetById(id, ct);
+        if (volunteer.IsFailure)
         {
-            _logger.LogInformation("Removed volunteer. Id: {VolunteerId}", operation.Value);
-            return Result<RemoveVolunteerResponse>.Success(new(true));
+            Error error = volunteer.Error;
+            _logger.LogError("Volunteer did not remove. Error: {ErrorMessage}", error.Description);
+            return volunteer.Error;
         }
-        _logger.LogError("Volunteer did not remove. Error: {ErrorMessage}", operation.Error);
-        return operation.Error;
+        volunteer.Value.Delete();
+        await _repository.Save(volunteer.Value, ct);
+        _logger.LogInformation("Volunteer marked for remove. Id: {VolunteerId}", id);
+        return Result<RemoveVolunteerResponse>.Success(new(true));
     }
 }

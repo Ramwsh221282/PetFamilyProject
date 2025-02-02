@@ -24,6 +24,9 @@ internal sealed class VolunteerConfiguration : IEntityTypeConfiguration<Voluntee
             )
             .HasColumnName("volunteer_id");
 
+        builder.Property(v => v.IsDeleted).HasColumnName("is_deleted");
+        builder.Property(v => v.DeletedOn).HasColumnName("deleted_on").IsRequired(false);
+
         #endregion
 
         #region Relations
@@ -45,11 +48,13 @@ internal sealed class VolunteerConfiguration : IEntityTypeConfiguration<Voluntee
                 cpb.Property(c => c.Email)
                     .IsRequired(false)
                     .HasMaxLength(Contacts.MaxEmailLength)
-                    .HasColumnName("volunteer_email");
+                    .HasColumnName("volunteer_email")
+                    .HasConversion(v => v, v => v);
                 cpb.Property(c => c.Phone)
                     .IsRequired()
                     .HasMaxLength(Contacts.MaxPhoneLength)
-                    .HasColumnName("volunteer_phone");
+                    .HasColumnName("volunteer_phone")
+                    .HasConversion(v => v, v => v);
             }
         );
 

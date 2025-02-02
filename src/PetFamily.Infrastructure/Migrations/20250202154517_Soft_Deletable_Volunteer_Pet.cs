@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PetFamily.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Soft_Deletable_Volunteer_Pet : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,6 +30,8 @@ namespace PetFamily.Infrastructure.Migrations
                     volunteer_id = table.Column<Guid>(type: "uuid", nullable: false),
                     volunteer_description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     volunteer_experience = table.Column<int>(type: "integer", nullable: false),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    deleted_on = table.Column<DateOnly>(type: "date", nullable: true),
                     volunteer_account_details_description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     volunteer_account_details_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     volunteer_email = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
@@ -37,7 +39,7 @@ namespace PetFamily.Infrastructure.Migrations
                     volunteer_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     volunteer_patronymic = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     volunteer_surname = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    SocialMedia = table.Column<string>(type: "jsonb", nullable: true)
+                    SocialMedia = table.Column<string>(type: "jsonb", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -76,6 +78,8 @@ namespace PetFamily.Infrastructure.Migrations
                     pet_description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     pet_address = table.Column<string>(type: "text", nullable: false),
                     pet_color = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    deleted_on = table.Column<DateOnly>(type: "date", nullable: true),
                     volunteer_id = table.Column<Guid>(type: "uuid", nullable: true),
                     pet_height = table.Column<double>(type: "double precision", nullable: false),
                     pet_weight = table.Column<double>(type: "double precision", nullable: false),
@@ -85,6 +89,7 @@ namespace PetFamily.Infrastructure.Migrations
                     owner_phone = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     pet_castrated = table.Column<bool>(type: "boolean", nullable: false),
                     pet_vaccinated = table.Column<bool>(type: "boolean", nullable: false),
+                    position = table.Column<int>(type: "integer", nullable: false),
                     Attachments = table.Column<string>(type: "jsonb", nullable: false)
                 },
                 constraints: table =>

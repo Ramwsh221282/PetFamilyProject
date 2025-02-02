@@ -13,8 +13,8 @@ using PetFamily.Infrastructure;
 namespace PetFamily.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250121173704_Initial")]
-    partial class Initial
+    [Migration("20250202154517_Soft_Deletable_Volunteer_Pet")]
+    partial class Soft_Deletable_Volunteer_Pet
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,10 +55,18 @@ namespace PetFamily.Infrastructure.Migrations
                         .HasColumnType("date")
                         .HasColumnName("pet_creation_date");
 
+                    b.Property<DateOnly?>("DeletedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("deleted_on");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("pet_description");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -130,6 +138,15 @@ namespace PetFamily.Infrastructure.Migrations
                                 .HasColumnName("pet_vaccinated");
                         });
 
+                    b.ComplexProperty<Dictionary<string, object>>("Position", "PetFamily.Domain.Pet.Pet.Position#Position", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<int>("Value")
+                                .HasColumnType("integer")
+                                .HasColumnName("position");
+                        });
+
                     b.HasKey("Id")
                         .HasName("pk_pets");
 
@@ -188,6 +205,10 @@ namespace PetFamily.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("volunteer_id");
 
+                    b.Property<DateOnly?>("DeletedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("deleted_on");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
@@ -196,6 +217,10 @@ namespace PetFamily.Infrastructure.Migrations
                     b.Property<int>("Experience")
                         .HasColumnType("integer")
                         .HasColumnName("volunteer_experience");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
                     b.ComplexProperty<Dictionary<string, object>>("AccountDetails", "PetFamily.Domain.Volunteer.Volunteer.AccountDetails#AccountDetails", b1 =>
                         {
@@ -368,7 +393,8 @@ namespace PetFamily.Infrastructure.Migrations
                             b1.Navigation("SocialMedias");
                         });
 
-                    b.Navigation("SocialMedia");
+                    b.Navigation("SocialMedia")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PetFamily.Domain.Species.Specie", b =>
