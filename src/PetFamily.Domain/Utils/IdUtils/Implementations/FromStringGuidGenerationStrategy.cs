@@ -10,6 +10,7 @@ public class FromStringGuidGenerationStrategy : IGuidGenerationStrategy
     {
         if (string.IsNullOrWhiteSpace(_input))
             return Guid.Empty;
+
         bool conversion = Guid.TryParse(_input, out Guid id);
         return !conversion ? Guid.Empty : id;
     }

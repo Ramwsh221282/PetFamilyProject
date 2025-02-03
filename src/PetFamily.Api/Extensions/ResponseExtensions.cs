@@ -10,6 +10,7 @@ public static class ResponseExtensions
     {
         if (result.IsSuccess)
             return TypedResults.Ok(Envelope.Ok(result.Value));
+
         return result.Error.StatusCode switch
         {
             ErrorStatusCode.BadRequest => TypedResults.BadRequest(Envelope.ToError(result)),
@@ -24,6 +25,7 @@ public static class ResponseExtensions
     {
         if (result.IsValid)
             return TypedResults.Ok();
+
         return TypedResults.BadRequest(Envelope.ToError(result));
     }
 }

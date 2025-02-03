@@ -30,6 +30,7 @@ public static class PositionableExtensions
             indexOfExisting < indexOfPositionable
                 ? new MoveDownPositionablesStrategy(indexOfPositionable, indexOfExisting)
                 : new MoveUpPositionablesStrategy(indexOfPositionable, indexOfExisting);
+
         strategy.Normalize(positionables, positionable, newPosition);
         positionable.ChangePosition(newElementPosition.Value);
         positionables.Sort((p1, p2) => p1.Position.Value < p2.Position.Value ? -1 : 1);

@@ -18,6 +18,7 @@ public sealed record Position
                 $"Position value must be between 1 and {positionables.Count}",
                 ErrorStatusCode.BadRequest
             );
+
         return new Position(value);
     }
 

@@ -39,8 +39,10 @@ public sealed class RemoveVolunteerRequestHandler
             _logger.LogError("Volunteer did not remove. Error: {ErrorMessage}", error.Description);
             return volunteer.Error;
         }
+
         volunteer.Value.Delete();
         await _repository.Save(volunteer.Value, ct);
+
         _logger.LogInformation("Volunteer marked for remove. Id: {VolunteerId}", id);
         return Result<RemoveVolunteerResponse>.Success(new(true));
     }

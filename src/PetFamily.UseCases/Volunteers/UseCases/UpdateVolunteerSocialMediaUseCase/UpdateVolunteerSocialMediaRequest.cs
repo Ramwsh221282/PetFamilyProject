@@ -43,11 +43,13 @@ public sealed class UpdateVolunteerSocialMediaRequestHandler
             );
             return volunteer.Error;
         }
+
         volunteer.Value.CleanUpdateSocialMedia(
             request.Details.Media.Select(m => m.ToValueObject())
         );
         await _repository.Save(volunteer, ct);
-        _logger.LogError("Volunteer social media updated. Id: {VolId}", request.Id.Id);
+
+        _logger.LogInformation("Volunteer social media updated. Id: {VolId}", request.Id.Id);
         return Result<UpdateVolunteerSocialMediaResponse>.Success(new(request.Id.Id));
     }
 }

@@ -48,6 +48,7 @@ public sealed class UpdateVolunteerAccountDetailsRequestHandler
         AccountDetails newDetails = request.Details.Details.ToValueObject();
         volunteer.Value.CleanUpdateAccountDetails(newDetails);
         await _repository.Save(volunteer);
+
         _logger.LogInformation("Volunteer account details was updated. Id: {VolId}", request.Id);
         return Result<UpdateVolunteerAccountDetailsResponse>.Success(new(request.Id.Id));
     }

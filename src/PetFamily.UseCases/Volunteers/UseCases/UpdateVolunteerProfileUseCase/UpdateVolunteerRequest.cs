@@ -57,6 +57,7 @@ public sealed class UpdateVolunteerRequestHandler
         }
 
         await _repository.Save(volunteer, ct);
+        _logger.LogInformation("Volunteer profile was updated. Id: {Id}", request.Id);
         return Result<UpdateVolunteerResponse>.Success(new(volunteer.Value.Id.Id));
     }
 }

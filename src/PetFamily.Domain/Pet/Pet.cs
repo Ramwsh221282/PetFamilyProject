@@ -43,7 +43,7 @@ public sealed class Pet : ISoftDeletable, IPositionable<Pet>
         PetAddress address,
         Contacts ownerContacts,
         PetHelpStatus helpStatus,
-        List<Pet> pets, // тут добавился List<Pet> который есть у волонтёра, чтобы инициализировать Position
+        Position position, // вместо передачи списка петов, просто позиция, которая назначается в CarryPet() у волонтёра.
         PetHealthStatus? healthStatus = null,
         Description? description = null
     )
@@ -63,7 +63,7 @@ public sealed class Pet : ISoftDeletable, IPositionable<Pet>
             PetHealth = healthStatus;
         if (description != null)
             Description = description;
-        Position = Position.CreateNext(pets);
+        Position = position;
     }
 
     #region Behavior
@@ -81,26 +81,30 @@ public sealed class Pet : ISoftDeletable, IPositionable<Pet>
     {
         if (name != null)
             Name = name;
+
         if (body != null)
             BodyMetrics = body;
+
         if (health != null)
             PetHealth = health;
+
         if (description != null)
             Description = description;
+
         if (help != null)
             HelpStatus = help;
+
         if (address != null)
             Address = address;
+
         if (ownerContacts != null)
             OwnerContacts = ownerContacts;
+
         if (color != null)
             Color = color;
     }
 
-    public void ChangePosition(Position position)
-    {
-        Position = position;
-    }
+    public void ChangePosition(Position position) => Position = position;
 
     public void Delete()
     {

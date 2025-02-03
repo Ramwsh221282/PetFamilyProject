@@ -3,6 +3,5 @@
 public interface IPositionable<T>
 {
     Position Position { get; }
-
     void ChangePosition(Position position);
 }

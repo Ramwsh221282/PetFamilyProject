@@ -44,12 +44,16 @@ public sealed class Volunteer : ISoftDeletable, IPositioner<Pet.Pet>
         Contacts = contacts;
         Name = name;
         SocialMedia = new SocialMediaCollection();
+
         if (description != null)
             Description = description;
+
         if (experience != null)
             Experience = experience;
+
         if (details != null)
             AccountDetails = details;
+
         SocialMedia = new SocialMediaCollection(media);
     }
 
@@ -59,8 +63,10 @@ public sealed class Volunteer : ISoftDeletable, IPositioner<Pet.Pet>
     {
         if (IsDeleted)
             return;
+
         IsDeleted = true;
         DeletedOn = DateOnly.FromDateTime(DateTime.Now);
+
         foreach (Pet.Pet pet in _pets)
             pet.Delete();
     }
@@ -69,8 +75,10 @@ public sealed class Volunteer : ISoftDeletable, IPositioner<Pet.Pet>
     {
         if (!IsDeleted)
             return;
+
         IsDeleted = false;
         DeletedOn = null;
+
         foreach (Pet.Pet pet in _pets)
             pet.Restore();
     }
@@ -97,6 +105,8 @@ public sealed class Volunteer : ISoftDeletable, IPositioner<Pet.Pet>
         Description? description = null
     )
     {
+        Position position = Position.CreateNext(_pets);
+
         Pet.Pet pet = new Pet.Pet(
             name,
             specieId,
@@ -107,12 +117,14 @@ public sealed class Volunteer : ISoftDeletable, IPositioner<Pet.Pet>
             address,
             ownerContacts,
             helpStatus,
-            _pets,
+            position,
             healthStatus,
             description
         );
+
         if (OwnsPet(pet))
             return VolunteerErrors.AlreadyCarriesPet(pet);
+
         _pets.Add(pet);
         return pet;
     }
@@ -141,10 +153,13 @@ public sealed class Volunteer : ISoftDeletable, IPositioner<Pet.Pet>
     {
         if (description != null)
             Description = description;
+
         if (experience != null)
             Experience = experience;
+
         if (name != null)
             Name = name;
+
         if (contacts != null)
             Contacts = contacts;
     }

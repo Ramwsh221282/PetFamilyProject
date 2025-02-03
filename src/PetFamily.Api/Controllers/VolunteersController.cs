@@ -28,6 +28,7 @@ public class VolunteersController : Controller
         ValidationResult validation = await validator.ValidateAsync(request, ct);
         if (!validation.IsValid)
             return validation.FromResult();
+
         Result<CreateVolunteerResponse> creation = await handler.Handle(request, ct);
         return creation.FromResult();
     }
@@ -43,6 +44,7 @@ public class VolunteersController : Controller
         ValidationResult validation = await validator.ValidateAsync(request, ct);
         if (!validation.IsValid)
             return validation.FromResult();
+
         Result<RemoveVolunteerResponse> deletion = await handler.Handle(request, ct);
         return deletion.FromResult();
     }
@@ -58,9 +60,11 @@ public class VolunteersController : Controller
     {
         VolunteerId requestedId = new VolunteerId(new FromStringGuidGenerationStrategy(id));
         UpdateVolunteerRequest request = new UpdateVolunteerRequest(requestedId, updateDetails);
+
         ValidationResult validation = await validator.ValidateAsync(request, ct);
         if (!validation.IsValid)
             return validation.FromResult();
+
         Result<UpdateVolunteerResponse> update = await handler.Handle(request, ct);
         return update.FromResult();
     }
@@ -76,9 +80,11 @@ public class VolunteersController : Controller
     {
         VolunteerId requestedId = new(new FromStringGuidGenerationStrategy(id));
         UpdateVolunteerSocialMediaRequest request = new(requestedId, updateDetails);
+
         ValidationResult validation = await validator.ValidateAsync(request, ct);
         if (!validation.IsValid)
             return validation.FromResult();
+
         Result<UpdateVolunteerSocialMediaResponse> update = await handler.Handle(request, ct);
         return update.FromResult();
     }
@@ -95,8 +101,10 @@ public class VolunteersController : Controller
         VolunteerId requestedId = new(new FromStringGuidGenerationStrategy(id));
         UpdateVolunteerAccountDetailsRequest request = new(requestedId, updateDetails);
         ValidationResult validation = await validator.ValidateAsync(request, ct);
+
         if (!validation.IsValid)
             return validation.FromResult();
+
         Result<UpdateVolunteerAccountDetailsResponse> update = await handler.Handle(request, ct);
         return update.FromResult();
     }

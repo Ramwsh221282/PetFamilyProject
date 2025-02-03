@@ -19,6 +19,7 @@ public sealed class Optional<TValue>
             value = _value!;
             return true;
         }
+
         value = default!;
         return false;
     }

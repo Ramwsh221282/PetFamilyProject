@@ -14,10 +14,6 @@ public static class SocialMediaDTOExtensions
         return new SocialMedia(name, url);
     }
 
-    public static SocialMedia[] ToValueObject(this List<SocialMediaDTO>? dto)
-    {
-        if (dto is null)
-            return [];
-        return dto.Select(d => d.ToValueObject()).ToArray();
-    }
+    public static SocialMedia[] ToValueObject(this List<SocialMediaDTO>? dto) =>
+        dto is null ? [] : dto.Select(d => d.ToValueObject()).ToArray();
 }
