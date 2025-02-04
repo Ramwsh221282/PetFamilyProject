@@ -15,7 +15,6 @@ public class VolunteerTests
         Specie specie = new Specie(type);
         BreedName breedName = BreedName.Create("Breed");
         Breed breed = new Breed(specie.Id, breedName);
-
         PetColor color = PetColor.Create("Color");
         PetBirthday birthday = PetBirthday.Create(
             DateOnly.FromDateTime(DateTime.Now.AddMonths(-1))
