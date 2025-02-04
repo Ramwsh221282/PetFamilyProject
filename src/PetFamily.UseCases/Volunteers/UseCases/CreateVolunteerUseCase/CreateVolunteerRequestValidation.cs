@@ -11,10 +11,14 @@ public sealed class CreateVolunteerRequestValidation : AbstractValidator<CreateV
     {
         RuleFor(r => r.NameDetails)
             .MustSatisfy(d => PersonName.Create(d.Name, d.Surname, d.Patronymic));
+
         RuleFor(r => r.ContactsDetails).MustSatisfy(d => Contacts.Create(d.Phone, d.Email));
+
         RuleFor(r => r.AccountDetails)
             .MustSatisfy(d => AccountDetails.Create(d.Description, d.Name));
+
         RuleFor(r => r.DescriptionDetails).MustSatisfy(d => Description.Create(d.Text));
+
         RuleFor(r => r.SocialMediaDetails)
             .Must(media =>
             {

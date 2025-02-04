@@ -9,7 +9,7 @@ public enum PetHelpStatuses
     ReceivedHelp = 2,
 }
 
-public abstract record PetHelpStatus
+public record PetHelpStatus
 {
     public string StatusText { get; }
     public PetHelpStatuses StatusCode { get; }
@@ -19,7 +19,7 @@ public abstract record PetHelpStatus
         StatusText = statusText;
         StatusCode = statusCode;
     }
-    
+
     public static Result<PetHelpStatus> Create(int status) =>
         status switch
         {
@@ -52,5 +52,6 @@ public sealed record ReceivedHelp : PetHelpStatus
 
 public static class PetHelpStatusErrors
 {
-    public static Error UnknownPetHelpStatus => new Error("Pet help status is unknown", ErrorStatusCode.BadRequest);
+    public static Error UnknownPetHelpStatus =>
+        new Error("Pet help status is unknown", ErrorStatusCode.BadRequest);
 }

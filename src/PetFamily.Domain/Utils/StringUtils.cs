@@ -8,6 +8,7 @@ public static class StringUtils
     {
         if (string.IsNullOrWhiteSpace(value))
             return value;
+
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.Append(char.ToUpper(value[0]));
         stringBuilder.Append(value.Substring(1));

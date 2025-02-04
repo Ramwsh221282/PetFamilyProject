@@ -18,7 +18,9 @@ public class Result
     }
 
     public static Result Failure(Error error) => new(error);
+
     public static implicit operator Result(Error error) => Failure(error);
+
     public static Result Success() => new();
 }
 
@@ -31,10 +33,15 @@ public sealed class Result<TValue> : Result
     private Result(Error error)
         : base(error) { }
 
-    public new static Result<TValue> Failure(Error error) => new(error);
+    public static new Result<TValue> Failure(Error error) => new(error);
+
     public static Result<TValue> Success(TValue value) => new(value);
+
     public static implicit operator Result<TValue>(Error error) => Failure(error);
+
     public static implicit operator Result<TValue>(TValue value) => Success(value);
-    public static implicit operator TValue(Result<TValue> value) => value._value;
+
+    public static implicit operator TValue(Result<TValue>? value) => value._value;
+
     public TValue Value => IsSuccess ? _value : throw new ResultException();
 }

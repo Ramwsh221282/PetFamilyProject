@@ -18,13 +18,16 @@ public static class LoggingConfiguration
             .WriteTo.File("logs/log.txt")
             .WriteTo.Seq(seqUrl)
             .CreateLogger();
+
         builder.Services.AddLogging();
+
         builder.Services.AddHttpLogging(options =>
         {
             options.LoggingFields = HttpLoggingFields.All;
             options.MediaTypeOptions.AddText("application/javascript");
             options.CombineLogs = true;
         });
+
         builder.Services.AddSerilog();
     }
 }
